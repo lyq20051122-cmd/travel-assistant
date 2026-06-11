@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>城市介绍 - 旅游计划生成助手</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/cities.css">
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="logo">
+        ✈ 旅游计划生成助手
+    </div>
+    <a href="/" class="nav-link">智能对话</a>
+    <a href="/cities" class="nav-link active">城市介绍</a>
+    <a href="/checklist" class="nav-link">旅游物品清单</a>
+    <a href="/city-stats" class="nav-link stats-link">📊 城市统计</a>
+    <a href="/dashboard" class="nav-link dashboard-link">📈 数据看板</a>
+    <a href="/weather-trend" class="nav-link weather-trend-link">🌡️ 天气趋势</a>
+    <a href="/weekly-briefing" class="nav-link briefing-link">📋 每周天气简报</a>
+    <a href="/travel-review-cards" class="nav-link">🃏 旅行回顾卡片</a>
+</div>
+
+<div class="main-container">
+    <div class="top-bar">
+        <div class="title-section">
+            <h2>城市风景特色介绍</h2>
+            <span>Explore Chinese Cities</span>
+        </div>
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="搜索城市..." onkeyup="searchCities()">
+            <button onclick="searchCities()">🔍</button>
+        </div>
+    </div>
+
+    <div id="cities-grid" class="cities-grid">
+        <!-- 城市卡片将在这里动态生成 -->
+    </div>
+</div>
+
+<script src="/static/cities.js"></script>
+
+</body>
+</html>

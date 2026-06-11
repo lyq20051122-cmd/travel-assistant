@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>旅游计划生成助手</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <!-- 背景层 -->
+    <div id="background-layer" class="background-layer spring"></div>
+    
+    <div class="sidebar">
+        <div class="logo">
+            ✈ 旅游计划生成助手
+        </div>
+
+        <a href="/" class="nav-link active">智能对话</a>
+        <a href="/cities" class="nav-link">城市介绍</a>
+        <a href="/checklist" class="nav-link">旅游物品清单</a>
+        <a href="/city-stats" class="nav-link stats-link">📊 城市统计</a>
+            <a href="/dashboard" class="nav-link dashboard-link">📈 数据看板</a>
+            <a href="/weather-trend" class="nav-link weather-trend-link">🌡️ 天气趋势</a>
+        <a href="/weekly-briefing" class="nav-link briefing-link">📋 每周天气简报</a>
+        <a href="/travel-review-cards" class="nav-link">🃏 旅行回顾卡片</a>
+
+        <!-- 季节推荐区域 -->
+        <div class="season-section">
+            <div class="section-header">
+                <span>🌄 季节推荐</span>
+                <span id="current-season" class="season-badge">{{ current_season }}</span>
+            </div>
+            <div id="season-cities" class="season-cities">
+                <!-- 季节推荐城市将在这里动态生成 -->
+            </div>
+        </div>
+
+        <!-- 历史会话区域 -->
+        <div class="history-section">
+            <div class="history-header">
+                <span>历史对话</span>
+                <button class="refresh-btn" onclick="loadRecentConversations()">↻</button>
+            </div>
+            <div id="history-list" class="history-list">
+                <!-- 历史会话列表将在这里动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="top-bar">
+            <div class="title-section">
+                <h2>旅游计划生成助手</h2>
+                <span>AI Travel Assistant</span>
+            </div>
+            <div class="top-right">
+                <!-- 季节切换按钮 -->
+                <div class="season-switcher">
+                    <button class="season-btn spring-btn" onclick="setSeason('spring')" title="春季">🌱</button>
+                    <button class="season-btn summer-btn" onclick="setSeason('summer')" title="夏季">☀️</button>
+                    <button class="season-btn autumn-btn" onclick="setSeason('autumn')" title="秋季">🍂</button>
+                    <button class="season-btn winter-btn" onclick="setSeason('winter')" title="冬季">❄️</button>
+                </div>
+                <button class="clear-btn" onclick="clearConversation()">清空对话</button>
+            </div>
+        </div>
+
+        <div id="chat-box" class="chat-box">
+            <div class="message ai-message">
+                <div class="avatar ai-avatar">AI</div>
+                <div class="bubble ai-bubble">
+                    你好，我是旅游计划生成助手，可以帮你规划旅游路线、查询天气以及记录旅游偏好。
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="请输入你的旅游问题...">
+            <button onclick="sendMessage()">发送</button>
+        </div>
+    </div>
+
+    <script src="/static/chat.js"></script>
+    <script>
+        // 设置季节背景
+        function setSeason(season) {
+            const backgroundLayer = document.getElementById('background-layer');
+            backgroundLayer.className = 'background-layer ' + season;
+            
+            // 更新季节推荐
+            loadSeasonCities(season);
+            
+            // 保存到本地存储
+            localStorage.setItem('currentSeason', season);
+        }
+        
+        // 加载季节推荐城市
+        function loadSeasonCities(season) {
+            fetch(`/api/season-cities?season=${season}`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('season-cities');
+                    if (data.success && data.cities.length > 0) {
+                        let html = '';
+                        data.cities.forEach(city => {
+                            html += `<div class="season-city-item" onclick="goToCity('${city.id}')">
+                                <img src="${city.image}" alt="${city.name}">
+                                <span>${city.name}</span>
+                            </div>`;
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = '<p class="no-data">暂无推荐城市</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('加载季节推荐失败:', error);
+                });
+        }
+        
+        // 跳转到城市详情
+        function goToCity(cityId) {
+            window.location.href = `/city/${cityId}`;
+        }
+        
+        // 获取当前季节
+        function getCurrentSeason() {
+            const month = new Date().getMonth() + 1;
+            if (month >= 3 && month <= 5) return 'spring';
+            if (month >= 6 && month <= 8) return 'summer';
+            if (month >= 9 && month <= 11) return 'autumn';
+            return 'winter';
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取保存的季节或自动检测
+            const savedSeason = localStorage.getItem('currentSeason') || getCurrentSeason();
+            setSeason(savedSeason);
+        });
+    </script>
+</body>
+</html>

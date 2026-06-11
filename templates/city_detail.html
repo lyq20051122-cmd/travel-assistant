@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>城市详情 - 旅游计划生成助手</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/cities.css">
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="logo">
+        ✈ 旅游计划生成助手
+    </div>
+    <a href="/" class="nav-link">智能对话</a>
+    <a href="/cities" class="nav-link active">城市介绍</a>
+    <a href="/checklist" class="nav-link">旅游物品清单</a>
+    <a href="/city-stats" class="nav-link stats-link">📊 城市统计</a>
+    <a href="/dashboard" class="nav-link dashboard-link">📈 数据看板</a>
+    <a href="/weather-trend" class="nav-link weather-trend-link">🌡️ 天气趋势</a>
+    <a href="/weekly-briefing" class="nav-link briefing-link">📋 每周天气简报</a>
+    <a href="/travel-review-cards" class="nav-link">🃏 旅行回顾卡片</a>
+</div>
+
+<div class="main-container">
+    <div class="top-bar">
+        <div class="title-section">
+            <button class="back-btn" onclick="goBack()">← 返回</button>
+            <h2 id="city-name">城市详情</h2>
+            <span id="city-province">Province</span>
+        </div>
+    </div>
+
+    <div class="city-detail-container">
+        <div class="city-header">
+            <img id="city-image" src="" alt="城市图片" class="city-banner">
+            <div class="city-info-overlay">
+                <h1 id="city-title">城市名称</h1>
+                <p id="city-description">城市描述</p>
+            </div>
+        </div>
+
+        <div class="city-content">
+            <div class="info-section">
+                <h3>🏛️ 必游景点</h3>
+                <ul id="highlights-list" class="info-list"></ul>
+            </div>
+
+            <div class="info-section">
+                <h3>🍜 特色美食</h3>
+                <ul id="food-list" class="info-list"></ul>
+            </div>
+
+            <div class="info-section">
+                <h3>📅 最佳旅游时间</h3>
+                <p id="best-time" class="info-text"></p>
+            </div>
+
+            <div class="info-section">
+                <h3>🎭 文化特色</h3>
+                <p id="culture" class="info-text"></p>
+            </div>
+
+            <div class="info-section">
+                <h3>🚇 交通指南</h3>
+                <p id="transport" class="info-text"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const cityId = "{{ city_id }}";
+</script>
+<script src="/static/city_detail.js"></script>
+
+</body>
+</html>

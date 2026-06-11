@@ -1,0 +1,50 @@
+[
+  {
+    "event_type": "trip_registered",
+    "trip_id": "trip_test_user_hw9_001_20260609174439",
+    "message": "用户test_user_hw9_001注册了西安行程(2026-06-09-2026-06-11)",
+    "timestamp": "2026-06-09T17:44:39.596578"
+  },
+  {
+    "event_type": "pre_trip_check",
+    "trip_id": "trip_test_user_hw9_001_20260609174439",
+    "message": "行前检查完成：1条提醒，1条建议",
+    "timestamp": "2026-06-09T17:44:42.696920"
+  },
+  {
+    "event_type": "post_trip_summary",
+    "trip_id": "trip_test_user_hw9_001_20260609174439",
+    "message": "行程回顾生成完成，0次干预",
+    "timestamp": "2026-06-09T17:44:43.791866"
+  },
+  {
+    "event_type": "trip_registered",
+    "trip_id": "trip_test_user_hw9_001_api_20260609174447",
+    "message": "用户test_user_hw9_001_api注册了杭州行程(2026-06-09-2026-06-12)",
+    "timestamp": "2026-06-09T17:44:47.063643"
+  },
+  {
+    "event_type": "pre_trip_check",
+    "trip_id": "trip_test_user_hw9_001_api_20260609174447",
+    "message": "行前检查完成：0条提醒，1条建议",
+    "timestamp": "2026-06-09T17:44:49.703762"
+  },
+  {
+    "event_type": "post_trip_summary",
+    "trip_id": "trip_test_user_hw9_001_api_20260609174447",
+    "message": "行程回顾生成完成，0次干预",
+    "timestamp": "2026-06-09T17:44:50.627658"
+  },
+  {
+    "event_type": "trip_registered",
+    "trip_id": "trip_test_user_001_20260609174450",
+    "message": "用户test_user_001注册了西安行程(2026-06-09-2026-06-11)",
+    "timestamp": "2026-06-09T17:44:50.637366"
+  },
+  {
+    "event_type": "pre_trip_check",
+    "trip_id": "trip_test_user_001_20260609174450",
+    "message": "行前检查完成：0条提醒，1条建议",
+    "timestamp": "2026-06-09T17:44:52.723010"
+  }
+]

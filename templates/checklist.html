@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <title>旅游物品清单</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="logo">
+        ✈ 旅游计划生成助手
+    </div>
+    <a href="/" class="nav-link">智能对话</a>
+    <a href="/cities" class="nav-link">城市介绍</a>
+    <a href="/checklist" class="nav-link active">旅游物品清单</a>
+    <a href="/city-stats" class="nav-link stats-link">📊 城市统计</a>
+    <a href="/dashboard" class="nav-link dashboard-link">📈 数据看板</a>
+    <a href="/weather-trend" class="nav-link weather-trend-link">🌡️ 天气趋势</a>
+    <a href="/weekly-briefing" class="nav-link briefing-link">📋 每周天气简报</a>
+    <a href="/travel-review-cards" class="nav-link">🃏 旅行回顾卡片</a>
+</div>
+
+<div class="main-container">
+    <div class="top-bar">
+        <div class="title-section">
+            <h2>旅游物品清单</h2>
+            <span>Travel Checklist</span>
+        </div>
+        <div class="export-buttons">
+            <button class="export-btn" onclick="exportAsText()">📄 导出为文本</button>
+            <button class="export-btn" onclick="exportAsMarkdown()">📝 导出为Markdown</button>
+            <button class="export-btn" onclick="exportAsJSON()">📊 导出为JSON</button>
+            <button class="clear-btn" onclick="clearAllChecks()">🗑 清除勾选</button>
+        </div>
+    </div>
+
+    <div class="checklist-container">
+        <div class="check-card">
+            <h3>📄 证件类</h3>
+            <ul>
+                <li><input type="checkbox" class="check-item" data-category="证件类" data-item="身份证"> 身份证</li>
+                <li><input type="checkbox" class="check-item" data-category="证件类" data-item="护照"> 护照</li>
+                <li><input type="checkbox" class="check-item" data-category="证件类" data-item="签证"> 签证</li>
+                <li><input type="checkbox" class="check-item" data-category="证件类" data-item="银行卡"> 银行卡</li>
+                <li><input type="checkbox" class="check-item" data-category="证件类" data-item="现金"> 现金</li>
+                <li><input type="checkbox" class="check-item" data-category="证件类" data-item="驾驶证"> 驾驶证</li>
+                <li><input type="checkbox" class="check-item" data-category="证件类" data-item="学生证/老年证"> 学生证/老年证</li>
+            </ul>
+        </div>
+
+        <div class="check-card">
+            <h3>📱 电子设备</h3>
+            <ul>
+                <li><input type="checkbox" class="check-item" data-category="电子设备" data-item="手机"> 手机</li>
+                <li><input type="checkbox" class="check-item" data-category="电子设备" data-item="充电器"> 充电器</li>
+                <li><input type="checkbox" class="check-item" data-category="电子设备" data-item="充电宝"> 充电宝</li>
+                <li><input type="checkbox" class="check-item" data-category="电子设备" data-item="耳机"> 耳机</li>
+                <li><input type="checkbox" class="check-item" data-category="电子设备" data-item="数据线"> 数据线</li>
+                <li><input type="checkbox" class="check-item" data-category="电子设备" data-item="相机"> 相机</li>
+                <li><input type="checkbox" class="check-item" data-category="电子设备" data-item="相机电池"> 相机电池</li>
+                <li><input type="checkbox" class="check-item" data-category="电子设备" data-item="转换插头"> 转换插头</li>
+            </ul>
+        </div>
+
+        <div class="check-card">
+            <h3>👕 衣物类</h3>
+            <ul>
+                <li><input type="checkbox" class="check-item" data-category="衣物类" data-item="外套"> 外套</li>
+                <li><input type="checkbox" class="check-item" data-category="衣物类" data-item="鞋子"> 鞋子</li>
+                <li><input type="checkbox" class="check-item" data-category="衣物类" data-item="换洗衣物"> 换洗衣物</li>
+                <li><input type="checkbox" class="check-item" data-category="衣物类" data-item="内衣裤"> 内衣裤</li>
+                <li><input type="checkbox" class="check-item" data-category="衣物类" data-item="袜子"> 袜子</li>
+                <li><input type="checkbox" class="check-item" data-category="衣物类" data-item="睡衣"> 睡衣</li>
+                <li><input type="checkbox" class="check-item" data-category="衣物类" data-item="泳衣"> 泳衣</li>
+                <li><input type="checkbox" class="check-item" data-category="衣物类" data-item="帽子"> 帽子</li>
+                <li><input type="checkbox" class="check-item" data-category="衣物类" data-item="雨伞"> 雨伞</li>
+                <li><input type="checkbox" class="check-item" data-category="衣物类" data-item="太阳镜"> 太阳镜</li>
+            </ul>
+        </div>
+
+        <div class="check-card">
+            <h3>🧴 洗漱用品</h3>
+            <ul>
+                <li><input type="checkbox" class="check-item" data-category="洗漱用品" data-item="牙刷"> 牙刷</li>
+                <li><input type="checkbox" class="check-item" data-category="洗漱用品" data-item="牙膏"> 牙膏</li>
+                <li><input type="checkbox" class="check-item" data-category="洗漱用品" data-item="毛巾"> 毛巾</li>
+                <li><input type="checkbox" class="check-item" data-category="洗漱用品" data-item="护肤品"> 护肤品</li>
+                <li><input type="checkbox" class="check-item" data-category="洗漱用品" data-item="洗发水"> 洗发水</li>
+                <li><input type="checkbox" class="check-item" data-category="洗漱用品" data-item="沐浴露"> 沐浴露</li>
+                <li><input type="checkbox" class="check-item" data-category="洗漱用品" data-item="洗面奶"> 洗面奶</li>
+                <li><input type="checkbox" class="check-item" data-category="洗漱用品" data-item="剃须刀"> 剃须刀</li>
+                <li><input type="checkbox" class="check-item" data-category="洗漱用品" data-item="化妆品"> 化妆品</li>
+                <li><input type="checkbox" class="check-item" data-category="洗漱用品" data-item="防晒霜"> 防晒霜</li>
+            </ul>
+        </div>
+
+        <div class="check-card">
+            <h3>💊 药品与医疗</h3>
+            <ul>
+                <li><input type="checkbox" class="check-item" data-category="药品与医疗" data-item="感冒药"> 感冒药</li>
+                <li><input type="checkbox" class="check-item" data-category="药品与医疗" data-item="退烧药"> 退烧药</li>
+                <li><input type="checkbox" class="check-item" data-category="药品与医疗" data-item="肠胃药"> 肠胃药</li>
+                <li><input type="checkbox" class="check-item" data-category="药品与医疗" data-item="创可贴"> 创可贴</li>
+                <li><input type="checkbox" class="check-item" data-category="药品与医疗" data-item="消毒湿巾"> 消毒湿巾</li>
+                <li><input type="checkbox" class="check-item" data-category="药品与医疗" data-item="晕车药"> 晕车药</li>
+                <li><input type="checkbox" class="check-item" data-category="药品与医疗" data-item="过敏药"> 过敏药</li>
+                <li><input type="checkbox" class="check-item" data-category="药品与医疗" data-item="隐形眼镜护理液"> 隐形眼镜护理液</li>
+                <li><input type="checkbox" class="check-item" data-category="药品与医疗" data-item="个人常用药"> 个人常用药</li>
+            </ul>
+        </div>
+
+        <div class="check-card">
+            <h3>🎒 其他物品</h3>
+            <ul>
+                <li><input type="checkbox" class="check-item" data-category="其他物品" data-item="背包"> 背包</li>
+                <li><input type="checkbox" class="check-item" data-category="其他物品" data-item="行李箱"> 行李箱</li>
+                <li><input type="checkbox" class="check-item" data-category="其他物品" data-item="锁"> 锁</li>
+                <li><input type="checkbox" class="check-item" data-category="其他物品" data-item="纸巾"> 纸巾</li>
+                <li><input type="checkbox" class="check-item" data-category="其他物品" data-item="湿巾"> 湿巾</li>
+                <li><input type="checkbox" class="check-item" data-category="其他物品" data-item="水杯"> 水杯</li>
+                <li><input type="checkbox" class="check-item" data-category="其他物品" data-item="零食"> 零食</li>
+                <li><input type="checkbox" class="check-item" data-category="其他物品" data-item="雨伞"> 雨伞</li>
+                <li><input type="checkbox" class="check-item" data-category="其他物品" data-item="钥匙"> 钥匙</li>
+                <li><input type="checkbox" class="check-item" data-category="其他物品" data-item="笔记本"> 笔记本</li>
+                <li><input type="checkbox" class="check-item" data-category="其他物品" data-item="笔"> 笔</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="summary-section">
+        <div class="summary-card">
+            <h3>📋 已选物品汇总</h3>
+            <div id="selected-items">
+                <p>请勾选物品，已选物品将显示在这里...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 更新已选物品汇总
+    function updateSummary() {
+        const checkedItems = document.querySelectorAll('.check-item:checked');
+        const selectedItems = {};
+        
+        checkedItems.forEach(item => {
+            const category = item.dataset.category;
+            const itemName = item.dataset.item;
+            
+            if (!selectedItems[category]) {
+                selectedItems[category] = [];
+            }
+            selectedItems[category].push(itemName);
+        });
+        
+        const summaryDiv = document.getElementById('selected-items');
+        
+        if (Object.keys(selectedItems).length === 0) {
+            summaryDiv.innerHTML = '<p>请勾选物品，已选物品将显示在这里...</p>';
+            return;
+        }
+        
+        let html = '';
+        let totalCount = 0;
+        
+        for (const [category, items] of Object.entries(selectedItems)) {
+            html += `<div class="summary-category">
+                <strong>${category} (${items.length}件)</strong>
+                <ul>`;
+            items.forEach(item => {
+                html += `<li>✓ ${item}</li>`;
+            });
+            html += '</ul></div>';
+            totalCount += items.length;
+        }
+        
+        html = `<p style="margin-bottom: 15px; color: #4f46e5; font-weight: bold;">已选择 ${totalCount} 件物品</p>` + html;
+        summaryDiv.innerHTML = html;
+    }
+    
+    // 监听勾选事件
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('check-item')) {
+            updateSummary();
+        }
+    });
+    
+    // 导出为文本格式
+    function exportAsText() {
+        const checkedItems = document.querySelectorAll('.check-item:checked');
+        if (checkedItems.length === 0) {
+            alert('请先勾选物品');
+            return;
+        }
+        
+        const selectedItems = {};
+        checkedItems.forEach(item => {
+            const category = item.dataset.category;
+            const itemName = item.dataset.item;
+            if (!selectedItems[category]) {
+                selectedItems[category] = [];
+            }
+            selectedItems[category].push(itemName);
+        });
+        
+        let content = `旅游物品清单\n`;
+        content += `生成时间：${new Date().toLocaleString('zh-CN')}\n\n`;
+        
+        for (const [category, items] of Object.entries(selectedItems)) {
+            content += `【${category}】\n`;
+            items.forEach((item, index) => {
+                content += `${index + 1}. ${item}\n`;
+            });
+            content += '\n';
+        }
+        
+        downloadFile(content, '旅游物品清单.txt', 'text/plain');
+    }
+    
+    // 导出为Markdown格式
+    function exportAsMarkdown() {
+        const checkedItems = document.querySelectorAll('.check-item:checked');
+        if (checkedItems.length === 0) {
+            alert('请先勾选物品');
+            return;
+        }
+        
+        const selectedItems = {};
+        checkedItems.forEach(item => {
+            const category = item.dataset.category;
+            const itemName = item.dataset.item;
+            if (!selectedItems[category]) {
+                selectedItems[category] = [];
+            }
+            selectedItems[category].push(itemName);
+        });
+        
+        let content = `# 旅游物品清单\n\n`;
+        content += `> 生成时间：${new Date().toLocaleString('zh-CN')}\n\n`;
+        
+        for (const [category, items] of Object.entries(selectedItems)) {
+            content += `## ${category}\n\n`;
+            items.forEach(item => {
+                content += `- [x] ${item}\n`;
+            });
+            content += '\n';
+        }
+        
+        downloadFile(content, '旅游物品清单.md', 'text/markdown');
+    }
+    
+    // 导出为JSON格式
+    function exportAsJSON() {
+        const checkedItems = document.querySelectorAll('.check-item:checked');
+        if (checkedItems.length === 0) {
+            alert('请先勾选物品');
+            return;
+        }
+        
+        const selectedItems = {};
+        checkedItems.forEach(item => {
+            const category = item.dataset.category;
+            const itemName = item.dataset.item;
+            if (!selectedItems[category]) {
+                selectedItems[category] = [];
+            }
+            selectedItems[category].push(itemName);
+        });
+        
+        const data = {
+            title: '旅游物品清单',
+            generatedAt: new Date().toISOString(),
+            totalItems: Array.from(checkedItems).length,
+            items: selectedItems
+        };
+        
+        downloadFile(JSON.stringify(data, null, 2), '旅游物品清单.json', 'application/json');
+    }
+    
+    // 下载文件
+    function downloadFile(content, filename, type) {
+        const blob = new Blob([content], { type: type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        alert(`文件 "${filename}" 已下载！`);
+    }
+    
+    // 清除所有勾选
+    function clearAllChecks() {
+        if (confirm('确定要清除所有勾选吗？')) {
+            document.querySelectorAll('.check-item').forEach(item => {
+                item.checked = false;
+            });
+            updateSummary();
+        }
+    }
+    
+    // 初始化
+    updateSummary();
+</script>
+
+</body>
+</html>

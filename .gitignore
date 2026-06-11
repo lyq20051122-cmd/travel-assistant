@@ -1,0 +1,35 @@
+# 环境变量文件（包含 API Key，禁止提交）
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.codeartsdoer/
+.arts/
+
+# 项目数据（运行时生成）
+*.db
+conversation_history.json
+memory.json
+reports/
+*.md.bak
+
+# 系统文件
+Thumbs.db
+Desktop.ini
+.DS_Store

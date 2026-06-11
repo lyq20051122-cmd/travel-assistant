@@ -1,0 +1,191 @@
+{
+  "test_user_hw9_001": {
+    "user_id": "test_user_hw9_001",
+    "created_at": "2026-06-09T17:44:32.464220",
+    "updated_at": "2026-06-09T17:44:45.961336",
+    "interests": {
+      "history": 0.65,
+      "culture": 0.95,
+      "museum": 0.3,
+      "relax": 0.6,
+      "food": 0.55,
+      "architecture": 0.1,
+      "photography": 0.44999999999999996,
+      "beach": 0.3
+    },
+    "travel_style": "slow_paced",
+    "travel_style_confidence": 0.8999999999999999,
+    "risk_preference": "conservative",
+    "risk_preference_confidence": 0.6,
+    "budget_sensitivity": {
+      "dining": 1.0,
+      "accommodation": 1.0,
+      "transport": 1.0,
+      "attractions": 1.0,
+      "shopping": 1.0,
+      "other": 1.0
+    },
+    "budget_level": "medium",
+    "pace_preference": {
+      "min_per_day": 2,
+      "max_per_day": 4
+    },
+    "social_tendency": "small_group",
+    "social_confidence": 0.3,
+    "seasonal_preference": {
+      "spring": 0.25,
+      "summer": 0.35,
+      "autumn": 0.25,
+      "winter": 0.25
+    },
+    "travel_history": [],
+    "avoid_places": [],
+    "favorite_cities": [],
+    "interest_timestamps": {
+      "history": "2026-06-09T17:44:39.580130",
+      "culture": "2026-06-09T17:44:39.580136",
+      "museum": "2026-06-09T17:44:39.571065",
+      "relax": "2026-06-09T17:44:45.958792",
+      "food": "2026-06-09T17:44:45.958786",
+      "architecture": "2026-06-09T17:44:39.579698",
+      "photography": "2026-06-09T17:44:45.958789",
+      "beach": "2026-06-09T17:44:45.958778"
+    },
+    "interaction_count": 8,
+    "recommendation_accept_count": 2,
+    "recommendation_reject_count": 2,
+    "feedback_history": [
+      {
+        "type": "city",
+        "content": "西安旅游推荐",
+        "accepted": true,
+        "timestamp": "2026-06-09T17:44:39.580609"
+      },
+      {
+        "type": "city",
+        "content": "厦门旅游推荐",
+        "accepted": false,
+        "timestamp": "2026-06-09T17:44:39.581071"
+      },
+      {
+        "type": "activity",
+        "content": "滑雪推荐",
+        "accepted": false,
+        "timestamp": "2026-06-09T17:44:39.581524"
+      },
+      {
+        "type": "city",
+        "content": "三亚推荐",
+        "accepted": true,
+        "timestamp": "2026-06-09T17:44:45.961295"
+      }
+    ]
+  },
+  "test_user_001": {
+    "user_id": "test_user_001",
+    "created_at": "2026-06-09T17:44:50.628295",
+    "updated_at": "2026-06-09T17:44:50.635914",
+    "interests": {
+      "history": 0.55,
+      "culture": 0.85,
+      "museum": 0.3,
+      "relax": 0.3,
+      "food": 0.25,
+      "photography": 0.15
+    },
+    "travel_style": "balanced",
+    "travel_style_confidence": 0.3,
+    "risk_preference": "moderate",
+    "risk_preference_confidence": 0.3,
+    "budget_sensitivity": {
+      "dining": 1.0,
+      "accommodation": 1.0,
+      "transport": 1.0,
+      "attractions": 1.0,
+      "shopping": 1.0,
+      "other": 1.0
+    },
+    "budget_level": "medium",
+    "pace_preference": {
+      "min_per_day": 2,
+      "max_per_day": 4
+    },
+    "social_tendency": "small_group",
+    "social_confidence": 0.3,
+    "seasonal_preference": {
+      "spring": 0.25,
+      "summer": 0.35,
+      "autumn": 0.25,
+      "winter": 0.25
+    },
+    "travel_history": [],
+    "avoid_places": [],
+    "favorite_cities": [],
+    "interest_timestamps": {
+      "history": "2026-06-09T17:44:50.634863",
+      "culture": "2026-06-09T17:44:50.634867",
+      "museum": "2026-06-09T17:44:50.629110",
+      "relax": "2026-06-09T17:44:50.630774",
+      "food": "2026-06-09T17:44:50.634869",
+      "photography": "2026-06-09T17:44:50.634871"
+    },
+    "interaction_count": 5,
+    "recommendation_accept_count": 1,
+    "recommendation_reject_count": 1,
+    "feedback_history": [
+      {
+        "type": "city",
+        "content": "西安旅游推荐",
+        "accepted": true,
+        "timestamp": "2026-06-09T17:44:50.635359"
+      },
+      {
+        "type": "activity",
+        "content": "滑雪推荐",
+        "accepted": false,
+        "timestamp": "2026-06-09T17:44:50.635878"
+      }
+    ]
+  },
+  "default_user": {
+    "user_id": "default_user",
+    "created_at": "2026-06-10T10:17:48.762332",
+    "updated_at": "2026-06-10T10:17:56.872061",
+    "interests": {},
+    "travel_style": "balanced",
+    "travel_style_confidence": 0.3,
+    "risk_preference": "moderate",
+    "risk_preference_confidence": 0.3,
+    "budget_sensitivity": {
+      "dining": 1.0,
+      "accommodation": 1.0,
+      "transport": 1.0,
+      "attractions": 1.0,
+      "shopping": 1.0,
+      "other": 1.0
+    },
+    "budget_level": "medium",
+    "pace_preference": {
+      "min_per_day": 2,
+      "max_per_day": 4
+    },
+    "social_tendency": "small_group",
+    "social_confidence": 0.3,
+    "seasonal_preference": {
+      "spring": 0.25,
+      "summer": 0.25,
+      "autumn": 0.25,
+      "winter": 0.25
+    },
+    "travel_history": [],
+    "avoid_places": [],
+    "favorite_cities": [
+      "广州"
+    ],
+    "interest_timestamps": {},
+    "interaction_count": 1,
+    "recommendation_accept_count": 0,
+    "recommendation_reject_count": 0,
+    "feedback_history": []
+  }
+}

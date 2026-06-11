@@ -1,0 +1,914 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    display:flex;
+    font-family:Arial, Helvetica, sans-serif;
+    height:100vh;
+    overflow:hidden;
+    position:relative;
+}
+
+/* 背景层 */
+.background-layer {
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    transition:all 0.5s ease-in-out;
+}
+
+.background-layer.spring {
+    background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
+}
+
+.background-layer.summer {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.background-layer.autumn {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.background-layer.winter {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+/* 左侧菜单 */
+.sidebar{
+    width:240px;
+    background:rgba(31, 41, 55, 0.95);
+    color:white;
+    padding:30px 20px;
+    z-index:100;
+    overflow-y:auto;
+}
+
+.logo{
+    font-size:24px;
+    font-weight:bold;
+    margin-bottom:40px;
+}
+
+.sidebar a{
+    display:block;
+    color:white;
+    text-decoration:none;
+    padding:14px;
+    border-radius:10px;
+    margin-bottom:12px;
+    transition:0.3s;
+}
+
+.sidebar a:hover{
+    background:#374151;
+}
+
+.sidebar a.active{
+    background:#4f46e5;
+}
+
+/* 季节推荐区域 */
+.season-section{
+    margin-top:30px;
+    padding-top:20px;
+    border-top:1px solid #374151;
+}
+
+.section-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+    font-size:14px;
+    color:#9ca3af;
+}
+
+.season-badge{
+    padding:4px 10px;
+    background:#4f46e5;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.season-cities{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.season-city-item{
+    width:47%;
+    background:#374151;
+    border-radius:8px;
+    padding:8px;
+    cursor:pointer;
+    transition:0.3s;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+}
+
+.season-city-item:hover{
+    background:#4b5563;
+    transform:scale(1.05);
+}
+
+.season-city-item img{
+    width:100%;
+    height:40px;
+    object-fit:cover;
+    border-radius:6px;
+}
+
+.season-city-item span{
+    font-size:12px;
+    color:white;
+}
+
+/* 历史会话区域 */
+.history-section{
+    margin-top:30px;
+    padding-top:20px;
+    border-top:1px solid #374151;
+}
+
+.history-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+    font-size:14px;
+    color:#9ca3af;
+}
+
+.refresh-btn{
+    width:24px;
+    height:24px;
+    background:#374151;
+    border:none;
+    border-radius:6px;
+    color:white;
+    cursor:pointer;
+    font-size:12px;
+    transition:0.3s;
+}
+
+.refresh-btn:hover{
+    background:#4b5563;
+}
+
+.history-list{
+    max-height:200px;
+    overflow-y:auto;
+}
+
+.history-item{
+    padding:10px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    margin-bottom:8px;
+    transition:0.3s;
+    background:#374151;
+}
+
+.history-item:hover{
+    background:#4b5563;
+}
+
+.history-item.active{
+    background:#4f46e5;
+}
+
+.history-date{
+    font-size:12px;
+    color:#9ca3af;
+    margin-bottom:4px;
+}
+
+.history-preview{
+    font-size:13px;
+    color:white;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.history-count{
+    font-size:11px;
+    color:#6b7280;
+    margin-top:4px;
+}
+
+/* 天气趋势入口 */
+.weather-section{
+    margin-top:30px;
+    padding-top:20px;
+    border-top:1px solid #374151;
+}
+
+.weather-link{
+    background:linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%) !important;
+}
+
+/* 主区域 */
+.main-container{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    z-index:10;
+    background:rgba(244, 246, 251, 0.95);
+}
+
+.top-bar{
+    background:rgba(255, 255, 255, 0.95);
+    padding:20px;
+    border-bottom:1px solid rgba(221, 221, 221, 0.8);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.title-section{
+    display:flex;
+    flex-direction:column;
+}
+
+.top-bar h2{
+    color:#111827;
+    margin-bottom:4px;
+}
+
+.top-bar span{
+    color:#6b7280;
+}
+
+.top-right{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+/* 季节切换按钮 */
+.season-switcher{
+    display:flex;
+    gap:6px;
+}
+
+.season-btn{
+    width:40px;
+    height:40px;
+    border:none;
+    border-radius:8px;
+    font-size:18px;
+    cursor:pointer;
+    transition:0.3s;
+    background:rgba(243, 244, 246, 0.9);
+}
+
+.season-btn:hover{
+    transform:scale(1.1);
+    background:white;
+}
+
+.spring-btn:hover{
+    background:#dcfce7;
+    box-shadow:0 0 10px rgba(74, 222, 128, 0.5);
+}
+
+.summer-btn:hover{
+    background:#dbeafe;
+    box-shadow:0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.autumn-btn:hover{
+    background:#fed7aa;
+    box-shadow:0 0 10px rgba(251, 146, 60, 0.5);
+}
+
+.winter-btn:hover{
+    background:#e0e7ff;
+    box-shadow:0 0 10px rgba(147, 197, 253, 0.5);
+}
+
+.clear-btn{
+    padding:10px 20px;
+    background:#ef4444;
+    color:white;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.clear-btn:hover{
+    background:#dc2626;
+}
+
+/* 聊天区域 */
+.chat-box{
+    flex:1;
+    padding:25px;
+    overflow-y:auto;
+    background:rgba(244, 246, 251, 0.8);
+}
+
+.message{
+    display:flex;
+    margin-bottom:20px;
+    align-items:flex-start;
+}
+
+.user-message{
+    justify-content:flex-end;
+}
+
+.avatar{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:14px;
+    font-weight:bold;
+    flex-shrink:0;
+    margin:0 12px;
+}
+
+.ai-avatar{
+    background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color:white;
+}
+
+.user-avatar{
+    background:linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color:white;
+}
+
+.bubble{
+    max-width:70%;
+    padding:14px 18px;
+    border-radius:16px;
+    font-size:15px;
+    line-height:1.5;
+    position:relative;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    background:white;
+}
+
+.ai-bubble{
+    background:white;
+    color:#374151;
+    border-top-left-radius:4px;
+}
+
+.ai-bubble::before{
+    content:'';
+    position:absolute;
+    left:-8px;
+    top:12px;
+    width:0;
+    height:0;
+    border-top:8px solid transparent;
+    border-bottom:8px solid transparent;
+    border-right:8px solid white;
+}
+
+.user-bubble{
+    background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color:white;
+    border-top-right-radius:4px;
+}
+
+.user-bubble::before{
+    content:'';
+    position:absolute;
+    right:-8px;
+    top:12px;
+    width:0;
+    height:0;
+    border-top:8px solid transparent;
+    border-bottom:8px solid transparent;
+    border-left:8px solid #667eea;
+}
+
+/* 打字指示器 */
+.typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.typing-indicator span {
+    width: 6px;
+    height: 6px;
+    background-color: #9ca3af;
+    border-radius: 50%;
+    animation: typing-dot 1.4s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing-dot {
+    0%, 80%, 100% {
+        transform: scale(0.6);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* 输入区域 */
+.input-area {
+    display: flex;
+    padding: 20px;
+    background:rgba(255, 255, 255, 0.95);
+    border-top: 1px solid rgba(221, 221, 221, 0.8);
+    gap: 12px;
+}
+
+.input-area input {
+    flex: 1;
+    padding: 14px 18px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 15px;
+    outline: none;
+    transition: 0.3s;
+    background:white;
+}
+
+.input-area input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.input-area button {
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.input-area button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* 物品清单页面样式 */
+.export-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.export-btn {
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+.export-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.checklist-container {
+    flex: 1;
+    padding: 25px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    overflow-y: auto;
+}
+
+.check-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.check-card h3 {
+    color: #1f2937;
+    margin-bottom: 15px;
+    font-size: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.check-card ul {
+    list-style: none;
+}
+
+.check-card li {
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.check-card li:last-child {
+    border-bottom: none;
+}
+
+.check-card li:hover {
+    background: #f9fafb;
+    padding-left: 5px;
+    border-radius: 6px;
+}
+
+.check-item {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #4f46e5;
+}
+
+.summary-section {
+    padding: 20px 25px;
+    background: white;
+    border-top: 1px solid #ddd;
+}
+
+.summary-card {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #bbf7d0;
+}
+
+.summary-card h3 {
+    color: #166534;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.summary-category {
+    margin-bottom: 15px;
+}
+
+.summary-category strong {
+    color: #1f2937;
+    font-size: 14px;
+}
+
+.summary-category ul {
+    list-style: none;
+    margin-top: 8px;
+    padding-left: 15px;
+}
+
+.summary-category li {
+    padding: 4px 0;
+    color: #374151;
+    font-size: 14px;
+}
+
+/* 天气趋势页面样式 */
+.weather-trend-container {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+.weather-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+}
+
+.weather-card h3 {
+    color: #1f2937;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.city-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.city-tag {
+    padding: 8px 16px;
+    background: #f3f4f6;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+.city-tag:hover {
+    background: #4f46e5;
+    color: white;
+}
+
+.city-tag.active {
+    background: #4f46e5;
+    color: white;
+}
+
+.chart-container {
+    height: 300px;
+    position: relative;
+}
+
+.chart-canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.weather-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.stat-item {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1f2937;
+}
+
+.stat-unit {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.no-data {
+    text-align: center;
+    color: #9ca3af;
+    padding: 20px;
+}
+
+/* 城市列表页面样式 */
+.cities-container {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+.search-box {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 15px;
+    margin-bottom: 20px;
+    outline: none;
+}
+
+.search-box:focus {
+    border-color: #667eea;
+}
+
+.cities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.city-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.city-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.city-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.city-info {
+    padding: 15px;
+}
+
+.city-info h3 {
+    color: #1f2937;
+    margin-bottom: 5px;
+}
+
+.city-info p {
+    color: #6b7280;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* 城市详情页面样式 */
+.city-detail-container {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+.city-header {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.city-header img {
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.city-title h1 {
+    color: #1f2937;
+    margin-bottom: 10px;
+}
+
+.city-title p {
+    color: #6b7280;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.detail-section {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.detail-section h3 {
+    color: #1f2937;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.detail-section ul {
+    list-style: none;
+}
+
+.detail-section li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.detail-section li:last-child {
+    border-bottom: none;
+}
+
+.detail-section li::before {
+    content: '✓';
+    color: #4f46e5;
+    font-weight: bold;
+}
+
+.back-link {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #f3f4f6;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #374151;
+    margin-bottom: 20px;
+    transition: 0.3s;
+}
+
+.back-link:hover {
+    background: #e5e7eb;
+}
+
+/* 城市统计页面样式 */
+.stats-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #374151;
+}
+
+.stats-link {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+.dashboard-link {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.briefing-link {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+}
+
+.stats-container {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.summary-icon {
+    font-size: 32px;
+}
+
+.summary-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #1f2937;
+}
+
+.summary-label {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.stats-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    margin-bottom: 25px;
+}
+
+.stats-card h3 {
+    color: #1f2937;
+    margin-bottom: 20px;
+    font-size: 16px;
+}

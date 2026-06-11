@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天气趋势图表 - 旅游计划生成助手</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 28px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .back-btn {
+            background: white;
+            color: #667eea;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+        
+        .back-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .city-selector {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .city-selector label {
+            font-weight: bold;
+            margin-right: 15px;
+            color: #333;
+        }
+        
+        .city-selector select {
+            padding: 10px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 200px;
+        }
+        
+        .city-selector button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 15px;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+        
+        .city-selector button:hover {
+            transform: scale(1.05);
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .chart-card h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .summary-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .summary-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .summary-label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 100px;
+            color: white;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 80px;
+            color: #9ca3af;
+        }
+        
+        .no-data-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 城市天气趋势图表</h1>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <a href="/" class="back-btn">← 返回首页</a>
+                <a href="/dashboard" style="background:rgba(255,255,255,0.2);color:white;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;">📈 数据看板</a>
+                <a href="/weekly-briefing" style="background:rgba(255,255,255,0.35);color:white;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;">📋 每周天气简报</a>
+                <a href="/travel-review-cards" style="background:rgba(255,255,255,0.2);color:white;padding:10px 18px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:600;">🃏 回顾卡片</a>
+            </div>
+        </div>
+        
+        <div class="city-selector">
+            <label for="city-select">选择城市：</label>
+            <select id="city-select">
+                <option value="北京">北京</option>
+                <option value="上海">上海</option>
+                <option value="广州">广州</option>
+                <option value="深圳">深圳</option>
+                <option value="杭州">杭州</option>
+                <option value="成都">成都</option>
+                <option value="西安">西安</option>
+                <option value="重庆">重庆</option>
+                <option value="南京">南京</option>
+                <option value="武汉">武汉</option>
+            </select>
+            <button onclick="loadWeatherTrend()">查询趋势</button>
+        </div>
+        
+        <div class="summary-cards" id="summary-cards">
+            <div class="summary-card">
+                <div class="summary-icon">🌡️</div>
+                <div class="summary-value" id="avg-temp">-</div>
+                <div class="summary-label">平均温度</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon">📈</div>
+                <div class="summary-value" id="max-temp">-</div>
+                <div class="summary-label">最高温度</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon">📉</div>
+                <div class="summary-value" id="min-temp">-</div>
+                <div class="summary-label">最低温度</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon">💧</div>
+                <div class="summary-value" id="avg-humidity">-</div>
+                <div class="summary-label">平均湿度</div>
+            </div>
+        </div>
+        
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>🌡️ 温度趋势</h3>
+                <div class="chart-container">
+                    <canvas id="tempChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>💧 湿度趋势</h3>
+                <div class="chart-container">
+                    <canvas id="humidityChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>📊 天气状况统计</h3>
+                <div class="chart-container">
+                    <canvas id="conditionChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>🌧️ 降水概率趋势</h3>
+                <div class="chart-container">
+                    <canvas id="precipChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chart-card" style="margin-top: 20px;">
+            <h3>📈 综合趋势分析</h3>
+            <div class="chart-container">
+                <canvas id="combinedChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let tempChart = null;
+        let humidityChart = null;
+        let conditionChart = null;
+        let precipChart = null;
+        let combinedChart = null;
+        
+        async function loadWeatherTrend() {
+            const city = document.getElementById('city-select').value;
+            
+            try {
+                // 显示加载状态
+                const summaryCards = document.getElementById('summary-cards');
+                summaryCards.style.opacity = '0.5';
+                
+                const response = await fetch(`/api/weather-trend?city=${encodeURIComponent(city)}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    showNoData();
+                    return;
+                }
+                
+                updateSummary(data);
+                updateCharts(data);
+                summaryCards.style.opacity = '1';
+                
+            } catch (error) {
+                console.error('加载天气趋势失败:', error);
+                showNoData();
+            }
+        }
+        
+        function updateSummary(data) {
+            document.getElementById('avg-temp').textContent = `${data.avg_temp}°C`;
+            document.getElementById('max-temp').textContent = `${data.max_temp}°C`;
+            document.getElementById('min-temp').textContent = `${data.min_temp}°C`;
+            document.getElementById('avg-humidity').textContent = `${Math.round(data.humidities.reduce((a,b) => a+b, 0) / data.humidities.length)}%`;
+        }
+        
+        function updateCharts(data) {
+            // 温度趋势图
+            if (tempChart) tempChart.destroy();
+            tempChart = new Chart(document.getElementById('tempChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: data.days,
+                    datasets: [{
+                        label: '温度 (°C)',
+                        data: data.temperatures,
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: '温度 (°C)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 湿度趋势图
+            if (humidityChart) humidityChart.destroy();
+            humidityChart = new Chart(document.getElementById('humidityChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: data.days,
+                    datasets: [{
+                        label: '湿度 (%)',
+                        data: data.humidities,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: '湿度 (%)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 天气状况饼图
+            if (conditionChart) conditionChart.destroy();
+            const conditionCounts = {};
+            data.conditions.forEach(c => {
+                conditionCounts[c] = (conditionCounts[c] || 0) + 1;
+            });
+            conditionChart = new Chart(document.getElementById('conditionChart').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(conditionCounts),
+                    datasets: [{
+                        data: Object.values(conditionCounts),
+                        backgroundColor: ['#22c55e', '#eab308', '#f97316', '#ef4444', '#6b7280']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            
+            // 综合趋势图
+            if (combinedChart) combinedChart.destroy();
+            combinedChart = new Chart(document.getElementById('combinedChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: data.days,
+                    datasets: [
+                        {
+                            label: '温度 (°C)',
+                            data: data.temperatures,
+                            borderColor: '#ef4444',
+                            yAxisID: 'y',
+                            tension: 0.4
+                        },
+                        {
+                            label: '湿度 (%)',
+                            data: data.humidities,
+                            borderColor: '#3b82f6',
+                            yAxisID: 'y1',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: '温度 (°C)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            min: 0,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: '湿度 (%)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function showNoData() {
+            document.getElementById('avg-temp').textContent = '-';
+            document.getElementById('max-temp').textContent = '-';
+            document.getElementById('min-temp').textContent = '-';
+            document.getElementById('avg-humidity').textContent = '-';
+            document.getElementById('summary-cards').style.opacity = '1';
+            
+            // 清空图表
+            if (tempChart) { tempChart.destroy(); tempChart = null; }
+            if (humidityChart) { humidityChart.destroy(); humidityChart = null; }
+            if (conditionChart) { conditionChart.destroy(); conditionChart = null; }
+            if (combinedChart) { combinedChart.destroy(); combinedChart = null; }
+            
+            alert('暂无天气数据，请确保已配置有效的天气API Key');
+        }
+        
+        // 页面加载时默认加载北京的天气趋势
+        document.addEventListener('DOMContentLoaded', loadWeatherTrend);
+    </script>
+</body>
+</html>

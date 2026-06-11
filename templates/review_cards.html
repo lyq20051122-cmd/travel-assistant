@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅行回顾卡片 - 旅游计划生成助手</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        :root {
+            --dest-xian: linear-gradient(135deg, #c0392b, #e74c3c);
+            --dest-hangzhou: linear-gradient(135deg, #16a085, #2ecc71);
+            --dest-chengdu: linear-gradient(135deg, #d4a017, #f0c75e);
+            --dest-beijing: linear-gradient(135deg, #8b0000, #c41e3a);
+            --dest-guangzhou: linear-gradient(135deg, #e74c3c, #f39c12);
+            --dest-shanghai: linear-gradient(135deg, #1a5276, #2980b9);
+            --dest-default: linear-gradient(135deg, #667eea, #764ba2);
+            --star-gold: #f59e0b;
+            --star-empty: #d1d5db;
+        }
+
+        body {
+            font-family: 'Segoe UI', '微软雅黑', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .review-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 20px 40px 20px;
+        }
+
+        /* Header */
+        .review-header {
+            background: white;
+            border-radius: 16px;
+            padding: 24px 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .review-header-left h1 {
+            font-size: 28px;
+            color: #1a1a2e;
+            margin: 0 0 6px 0;
+        }
+
+        .review-header-left span {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .review-header-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-outline {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            color: #555;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-outline:hover { border-color: #667eea; color: #667eea; }
+        .btn-outline.danger { border-color: #fecaca; color: #ef4444; }
+        .btn-outline.danger:hover { border-color: #ef4444; background: #fef2f2; }
+
+        /* Generation Panel */
+        .generate-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 24px 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .generate-panel label {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+            white-space: nowrap;
+        }
+
+        .generate-panel select {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .generate-panel select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .status-msg {
+            font-size: 13px;
+            color: #888;
+            min-height: 20px;
+        }
+
+        .status-msg.success { color: #22c55e; }
+        .status-msg.error { color: #ef4444; }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+        }
+
+        /* Individual Card */
+        .review-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: default;
+        }
+
+        .review-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-banner {
+            padding: 28px 24px 20px;
+            color: white;
+            position: relative;
+        }
+
+        .card-banner.xian { background: var(--dest-xian); }
+        .card-banner.hangzhou { background: var(--dest-hangzhou); }
+        .card-banner.chengdu { background: var(--dest-chengdu); }
+        .card-banner.beijing { background: var(--dest-beijing); }
+        .card-banner.guangzhou { background: var(--dest-guangzhou); }
+        .card-banner.shanghai { background: var(--dest-shanghai); }
+        .card-banner.default-dest { background: var(--dest-default); }
+
+        .card-dest-name {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .card-date-range {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-bottom: 14px;
+        }
+
+        .card-stars {
+            display: flex;
+            gap: 3px;
+        }
+
+        .card-stars .star {
+            font-size: 22px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .card-stars .star.full { color: #fbbf24; text-shadow: 0 0 8px rgba(251, 191, 36, 0.5); }
+        .card-stars .star.half { color: #fbbf24; }
+        .card-stars .star.empty { color: rgba(255,255,255,0.35); }
+
+        .card-body {
+            padding: 20px 24px;
+        }
+
+        .card-narrative {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 18px;
+            max-height: 4.5em;
+            overflow: hidden;
+            position: relative;
+            transition: max-height 0.4s;
+        }
+
+        .card-narrative.expanded {
+            max-height: 1000px;
+        }
+
+        .card-narrative:not(.expanded)::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2em;
+            background: linear-gradient(transparent, white);
+        }
+
+        .expand-toggle {
+            color: #667eea;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 16px;
+            display: inline-block;
+            user-select: none;
+        }
+
+        .expand-toggle:hover { color: #4f46e5; }
+
+        /* Rating bars */
+        .ratings-section {
+            margin-bottom: 16px;
+        }
+
+        .rating-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .rating-label {
+            font-size: 13px;
+            color: #666;
+            width: 55px;
+            flex-shrink: 0;
+        }
+
+        .rating-bar-track {
+            flex: 1;
+            height: 8px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .rating-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .rating-bar-fill.green { background: linear-gradient(90deg, #22c55e, #16a34a); }
+        .rating-bar-fill.yellow { background: linear-gradient(90deg, #eab308, #ca8a04); }
+        .rating-bar-fill.orange { background: linear-gradient(90deg, #f97316, #ea580c); }
+        .rating-bar-fill.red { background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+        .rating-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: #333;
+            width: 24px;
+            text-align: right;
+        }
+
+        /* Highlights */
+        .highlights-section {
+            margin-bottom: 16px;
+        }
+
+        .highlight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .highlight-icon { flex-shrink: 0; font-size: 14px; }
+
+        /* Weather summary */
+        .weather-line {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 14px;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        /* Tags */
+        .tags-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .tag-chip {
+            background: linear-gradient(135deg, #e0e7ff, #f0e6ff);
+            color: #5b21b6;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Card footer */
+        .card-footer {
+            display: flex;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .card-footer button {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #555;
+            transition: all 0.2s;
+        }
+
+        .card-footer button:hover { background: #f9fafb; border-color: #667eea; color: #667eea; }
+        .card-footer button.export md:hover { border-color: #3b82f6; color: #3b82f6; }
+        .card-footer button.delete-btn:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: white;
+        }
+
+        .empty-state .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            margin: 0 0 10px;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            opacity: 0.7;
+            margin: 0;
+        }
+
+        /* Detail Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 700px;
+            width: 100%;
+            padding: 32px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover { color: #333; }
+
+        .modal-dest {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 4px;
+        }
+
+        .modal-date {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .modal-section {
+            margin-bottom: 24px;
+        }
+
+        .modal-section h3 {
+            font-size: 16px;
+            color: #333;
+            margin: 0 0 10px;
+            padding-left: 12px;
+            border-left: 3px solid #667eea;
+        }
+
+        .modal-section p {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #555;
+            margin: 0;
+        }
+
+        .modal-section .tips-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .modal-section .tips-list li {
+            padding: 6px 0;
+            font-size: 14px;
+            color: #555;
+            counter-increment: tip-counter;
+        }
+
+        .modal-section .tips-list li::before {
+            content: '💡';
+            margin-right: 8px;
+        }
+
+        .modal-budget-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .modal-budget-item {
+            text-align: center;
+            padding: 14px;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .modal-budget-item .amount {
+            font-size: 22px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .modal-budget-item .label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .modal-footer-btns {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .cards-grid { grid-template-columns: 1fr; }
+            .generate-panel { flex-direction: column; align-items: stretch; }
+            .modal-budget-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .review-card { animation: fadeInUp 0.4s ease; }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="logo">✈ 旅游计划生成助手</div>
+    <a href="/" class="nav-link">💬 智能对话</a>
+    <a href="/cities" class="nav-link">🏙️ 城市介绍</a>
+    <a href="/checklist" class="nav-link">📋 旅游物品清单</a>
+    <a href="/city-stats" class="nav-link">📊 城市统计</a>
+    <a href="/dashboard" class="nav-link">📈 数据看板</a>
+    <a href="/weather-trend" class="nav-link">🌡️ 天气趋势</a>
+    <a href="/weekly-briefing" class="nav-link">📋 每周天气简报</a>
+    <a href="/travel-review-cards" class="nav-link active" style="background: linear-gradient(135deg, #f59e0b10, #fbbf2410); color: #f59e0b; font-weight: 700;">🃏 旅行回顾卡片</a>
+</div>
+
+<div class="main-container">
+    <div class="review-container">
+        <!-- Header -->
+        <div class="review-header">
+            <div class="review-header-left">
+                <h1>🃏 旅行回顾卡片</h1>
+                <span>AI-Powered Travel Review Cards</span>
+            </div>
+            <div class="review-header-right">
+                <button class="btn-outline" onclick="exportAllCards()" title="导出全部卡片为JSON">📦 导出全部</button>
+                <button class="btn-primary" onclick="refreshCards()">🔄 刷新列表</button>
+            </div>
+        </div>
+
+        <!-- Generation Panel -->
+        <div class="generate-panel" id="generatePanel">
+            <label for="tripSelect">📌 选择行程：</label>
+            <select id="tripSelect">
+                <option value="">-- 选择一次已完成的旅行 --</option>
+            </select>
+            <button class="btn-primary" id="generateBtn" onclick="generateCard()">
+                ✨ 生成回顾卡片
+            </button>
+            <span class="status-msg" id="statusMsg"></span>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" style="display:none; text-align:center; padding:40px; color:white;">
+            <div style="font-size:40px; animation: spin 1s linear infinite; display:inline-block;">⏳</div>
+            <p style="margin-top:12px; font-size:16px;">AI正在为你生成旅行回顾卡片...</p>
+        </div>
+
+        <!-- Cards Area -->
+        <div class="cards-grid" id="cardsGrid"></div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">🃏</div>
+            <h2>还没有旅行回顾卡片</h2>
+            <p>选择一次已完成的旅行，点击"生成回顾卡片"，让 AI 为你写一份温暖的旅行回顾吧 ✨</p>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal-content" id="modalContent">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+</div>
+
+<script>
+    const DEFAULT_USER_ID = 'default_user';
+    let currentCards = [];
+
+    // ===== Page Init =====
+    document.addEventListener('DOMContentLoaded', () => {
+        loadAvailableTrips();
+    });
+
+    // ===== API Calls =====
+    async function loadAvailableTrips() {
+        try {
+            const resp = await fetch(`/api/review-cards/available-trips?user_id=${DEFAULT_USER_ID}`);
+            const data = await resp.json();
+            if (!data.success) { showStatus('加载行程失败', 'error'); return; }
+
+            // Populate trip selector
+            const select = document.getElementById('tripSelect');
+            select.innerHTML = '<option value="">-- 选择一次已完成的旅行 --</option>';
+            for (const trip of data.available_trips) {
+                const option = document.createElement('option');
+                option.value = trip.trip_id;
+                option.textContent = `${trip.destination} | ${trip.start_date} ~ ${trip.end_date} | ${trip.duration_days}天 | ${trip.status}`;
+                select.appendChild(option);
+            }
+
+            // Render existing cards
+            currentCards = data.generated_cards || [];
+            renderCards();
+
+        } catch (e) {
+            showStatus('网络错误：' + e.message, 'error');
+        }
+    }
+
+    async function generateCard() {
+        const select = document.getElementById('tripSelect');
+        const tripId = select.value;
+        if (!tripId) { showStatus('请先选择一次旅行', 'error'); return; }
+
+        const btn = document.getElementById('generateBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> 生成中...';
+        showStatus('AI正在生成回顾卡片，请稍候...', '');
+        document.getElementById('loadingOverlay').style.display = 'block';
+
+        try {
+            const resp = await fetch('/api/review-cards/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ trip_id: tripId, user_id: DEFAULT_USER_ID })
+            });
+            const data = await resp.json();
+
+            if (data.success && data.card) {
+                if (data.existing) {
+                    showStatus('该行程已有回顾卡片', 'success');
+                } else {
+                    showStatus('✨ 回顾卡片生成成功！', 'success');
+                    // Refresh list
+                    await loadAvailableTrips();
+                }
+                // Scroll to card
+                setTimeout(() => {
+                    const card = document.querySelector(`[data-card-id="${data.card.card_id}"]`);
+                    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            } else {
+                showStatus('生成失败：' + (data.message || '未知错误'), 'error');
+            }
+        } catch (e) {
+            showStatus('网络错误：' + e.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '✨ 生成回顾卡片';
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+    }
+
+    async function refreshCards() {
+        await loadAvailableTrips();
+        showStatus('列表已刷新', 'success');
+    }
+
+    // ===== Rendering =====
+    function renderCards() {
+        const grid = document.getElementById('cardsGrid');
+        const empty = document.getElementById('emptyState');
+
+        if (currentCards.length === 0) {
+            grid.innerHTML = '';
+            empty.style.display = 'block';
+            return;
+        }
+
+        empty.style.display = 'none';
+        grid.innerHTML = currentCards.map(card => renderCardHTML(card)).join('');
+    }
+
+    function renderCardHTML(card) {
+        // Delay each card's animation slightly for stagger effect
+        const ratings = card.ratings || {};
+        const highlights = card.highlights || [];
+        const tags = card.tags || [];
+        const destClass = getDestinationClass(card.destination);
+
+        // Build rating bars
+        const ratingBars = [
+            { label: '🏛️ 景点', key: 'attractions', val: ratings.attractions || 4 },
+            { label: '🍜 美食', key: 'food', val: ratings.food || 4 },
+            { label: '🌤️ 天气', key: 'weather', val: ratings.weather || 3 },
+            { label: '💰 预算', key: 'budget_match', val: ratings.budget_match || 4 },
+            { label: '⭐ 综合', key: 'overall', val: ratings.overall || 4 }
+        ];
+
+        let ratingHTML = ratingBars.map(r => {
+            const pct = (r.val / 5) * 100;
+            const color = r.val >= 4 ? 'green' : r.val >= 3 ? 'yellow' : r.val >= 2 ? 'orange' : 'red';
+            return `<div class="rating-row">
+                <span class="rating-label">${r.label}</span>
+                <div class="rating-bar-track"><div class="rating-bar-fill ${color}" style="width:${pct}%"></div></div>
+                <span class="rating-value">${r.val}</span>
+            </div>`;
+        }).join('');
+
+        // Build highlights
+        let highlightHTML = highlights.map(h => `
+            <div class="highlight-item"><span class="highlight-icon">✨</span><span>${escapeHtml(h)}</span></div>
+        `).join('');
+
+        // Build tags
+        let tagHTML = tags.map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join('');
+
+        // Star rating display
+        const overallRating = ratings.overall || 4;
+        let starHTML = '';
+        for (let i = 1; i <= 5; i++) {
+            if (i <= Math.floor(overallRating)) {
+                starHTML += '<span class="star full">★</span>';
+            } else if (i - 0.5 <= overallRating) {
+                starHTML += '<span class="star half">★</span>';
+            } else {
+                starHTML += '<span class="star empty">★</span>';
+            }
+        }
+
+        return `
+        <div class="review-card" data-card-id="${escapeHtml(card.card_id || '')}">
+            <div class="card-banner ${destClass}">
+                <div class="card-dest-name">🗺️ ${escapeHtml(card.destination || '未知')}</div>
+                <div class="card-date-range">📅 ${escapeHtml(card.date_range || '')} · ${card.duration_days || '?'}天</div>
+                <div class="card-stars">${starHTML}</div>
+            </div>
+            <div class="card-body">
+                <div class="card-narrative" id="narrative-${escapeHtml(card.card_id || '')}">
+                    ${escapeHtml(card.llm_narrative || '暂无叙事')}
+                </div>
+                <div class="expand-toggle" onclick="toggleNarrative('${escapeHtml(card.card_id || '')}')">展开阅读全文 ▼</div>
+
+                <div class="ratings-section">${ratingHTML}</div>
+                <div class="highlights-section">${highlightHTML}</div>
+                <div class="weather-line">🌤️ ${escapeHtml(card.weather_summary || '暂无天气数据')}</div>
+                <div class="tags-section">${tagHTML}</div>
+
+                <div class="card-footer">
+                    <button class="export-md" onclick="viewDetail('${escapeHtml(card.card_id || '')}')">📖 查看详情</button>
+                    <button class="export-md" onclick="exportCardMD('${escapeHtml(card.card_id || '')}')">📥 导出MD</button>
+                    <button class="delete-btn" onclick="deleteCard('${escapeHtml(card.card_id || '')}')">🗑️ 删除</button>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    // ===== Detail Modal =====
+    function viewDetail(cardId) {
+        // Find card from currentCards (basic info) or fetch full
+        const cardBase = currentCards.find(c => c.card_id === cardId);
+        if (!cardBase) return;
+
+        // Fetch full card data
+        fetch(`/api/review-cards/${cardId}`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) { alert('获取卡片详情失败'); return; }
+                renderModal(data.card);
+                document.getElementById('detailModal').classList.add('active');
+            })
+            .catch(e => alert('网络错误：' + e.message));
+    }
+
+    function renderModal(card) {
+        const r = card.ratings || {};
+        const modal = document.getElementById('modalContent');
+
+        let starsStr = '';
+        for (let i = 1; i <= 5; i++) {
+            starsStr += i <= Math.floor(r.overall || 4)
+                ? '<span style="color:#fbbf24;font-size:24px;">★</span>'
+                : '<span style="color:#d1d5db;font-size:24px;">★</span>';
+        }
+
+        let ratingDetailHTML = Object.entries(r).map(([k, v]) => {
+            const labels = { attractions: '🏛️ 景点', food: '🍜 美食', weather: '🌤️ 天气', budget_match: '💰 预算匹配', overall: '⭐ 综合' };
+            return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f3f4f6;">
+                <span>${labels[k] || k}</span>
+                <span style="font-weight:700;">${'★'.repeat(v)}${'☆'.repeat(5-v)} ${v}/5</span>
+            </div>`;
+        }).join('');
+
+        let tipsHTML = (card.tips || []).map(t => `<li>${escapeHtml(t)}</li>`).join('');
+
+        let budget = card.budget_summary || {};
+
+        modal.innerHTML = `
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-dest">🗺️ ${escapeHtml(card.destination || '未知')}</div>
+            <div class="modal-date">📅 ${escapeHtml(card.date_range || '')} · ${card.duration_days || '?'}天 · ${starsStr}</div>
+
+            <div class="modal-section">
+                <h3>评分详情</h3>
+                ${ratingDetailHTML}
+            </div>
+
+            <div class="modal-section">
+                <h3>📝 旅行回顾</h3>
+                <p>${escapeHtml(card.llm_narrative || '暂无')}</p>
+            </div>
+
+            <div class="modal-section">
+                <h3>✨ 精彩亮点</h3>
+                <p>${(card.highlights || []).map(h => '• ' + escapeHtml(h)).join('<br>')}</p>
+            </div>
+
+            <div class="modal-section">
+                <h3>🌤️ 天气回顾</h3>
+                <p>${escapeHtml(card.weather_summary || '暂无数据')}</p>
+            </div>
+
+            <div class="modal-section">
+                <h3>💰 预算概览</h3>
+                <div class="modal-budget-grid">
+                    <div class="modal-budget-item"><div class="amount">¥${budget.estimated || '?'}</div><div class="label">预估预算</div></div>
+                    <div class="modal-budget-item"><div class="amount">¥${budget.actual || '?'}</div><div class="label">实际花费</div></div>
+                    <div class="modal-budget-item"><div class="amount">¥${budget.per_day || '?'}</div><div class="label">日均花费</div></div>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h3>💡 旅行建议</h3>
+                <ul class="tips-list">${tipsHTML || '<li>暂无建议</li>'}</ul>
+            </div>
+
+            <div class="modal-section">
+                <h3>🏷️ 标签</h3>
+                <div class="tags-section">${(card.tags || []).map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join('')}</div>
+            </div>
+
+            <div class="modal-section">
+                <h3>🛡️ 行程守护者记录</h3>
+                <p style="font-size:13px;color:#888;">${escapeHtml(card.guardian_interventions || '无特殊提醒')}</p>
+            </div>
+
+            <div class="modal-footer-btns">
+                <button class="btn-primary" onclick="exportCardMD('${escapeHtml(card.card_id || '')}')">📥 导出 Markdown</button>
+                <button class="btn-outline" onclick="closeModal()">关闭</button>
+            </div>
+        `;
+    }
+
+    function closeModal() {
+        document.getElementById('detailModal').classList.remove('active');
+    }
+
+    // Close modal on overlay click
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'detailModal') closeModal();
+    });
+
+    // ===== Actions =====
+    function toggleNarrative(cardId) {
+        const el = document.getElementById('narrative-' + cardId);
+        const toggle = el.nextElementSibling;
+        if (el.classList.contains('expanded')) {
+            el.classList.remove('expanded');
+            toggle.textContent = '展开阅读全文 ▼';
+        } else {
+            el.classList.add('expanded');
+            toggle.textContent = '收起 ▲';
+        }
+    }
+
+    async function exportCardMD(cardId) {
+        try {
+            const resp = await fetch(`/api/review-cards/${cardId}/export?format=markdown`);
+            const data = await resp.json();
+            if (data.success && data.markdown) {
+                downloadFile(data.markdown, `review_${cardId}.md`, 'text/markdown');
+                showStatus('导出成功！', 'success');
+            } else {
+                showStatus('导出失败', 'error');
+            }
+        } catch (e) {
+            showStatus('导出错误：' + e.message, 'error');
+        }
+    }
+
+    async function deleteCard(cardId) {
+        if (!confirm('确定要删除这张回顾卡片吗？此操作不可恢复！')) return;
+        try {
+            const resp = await fetch(`/api/review-cards/${cardId}`, { method: 'DELETE' });
+            const data = await resp.json();
+            if (data.success) {
+                showStatus('卡片已删除', 'success');
+                await loadAvailableTrips();
+            } else {
+                showStatus('删除失败：' + (data.message || ''), 'error');
+            }
+        } catch (e) {
+            showStatus('删除错误：' + e.message, 'error');
+        }
+    }
+
+    function exportAllCards() {
+        // Export all current cards as JSON
+        const blob = new Blob([JSON.stringify(currentCards, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `review_cards_all_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showStatus('已导出全部卡片为JSON', 'success');
+    }
+
+    // ===== Helpers =====
+    function showStatus(msg, type) {
+        const el = document.getElementById('statusMsg');
+        el.textContent = msg;
+        el.className = 'status-msg ' + (type || '');
+        if (type === 'success') {
+            setTimeout(() => { el.textContent = ''; el.className = 'status-msg'; }, 4000);
+        }
+    }
+
+    function getDestinationClass(dest) {
+        if (!dest) return 'default-dest';
+        const map = {
+            '西安': 'xian', '杭州': 'hangzhou', '成都': 'chengdu',
+            '北京': 'beijing', '广州': 'guangzhou', '上海': 'shanghai',
+            '深圳': 'default-dest', '重庆': 'chengdu', '南京': 'hangzhou',
+            '武汉': 'beijing', '苏州': 'hangzhou', '青岛': 'guangzhou',
+            '厦门': 'guangzhou', '昆明': 'hangzhou', '丽江': 'default-dest'
+        };
+        return map[dest] || 'default-dest';
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function downloadFile(content, filename, mimeType) {
+        const blob = new Blob([content], { type: mimeType + ';charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+</script>
+</body>
+</html>

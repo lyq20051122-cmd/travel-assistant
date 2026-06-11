@@ -1,0 +1,26 @@
+[
+  {
+    "alert_type": "高温预警",
+    "city": "广州",
+    "severity": "warning",
+    "message": "广州当前气温高达38°C，已达到高温预警标准！建议避免在中午12点至下午3点进行户外活动。",
+    "timestamp": "2026-06-01T15:46:23.262861",
+    "resolved": false
+  },
+  {
+    "alert_type": "暴雨预警",
+    "city": "深圳",
+    "severity": "danger",
+    "message": "深圳当前天气为暴雨，降水量达45mm！建议推迟或取消户外行程，避免前往山区、河边等危险区域。",
+    "timestamp": "2026-06-01T09:46:23.262861",
+    "resolved": false
+  },
+  {
+    "alert_type": "空气质量差预警",
+    "city": "成都",
+    "severity": "warning",
+    "message": "成都当前空气质量较差，PM2.5浓度为180μg/m³！建议佩戴口罩，减少户外活动时间。",
+    "timestamp": "2026-06-01T03:46:23.262861",
+    "resolved": false
+  }
+]

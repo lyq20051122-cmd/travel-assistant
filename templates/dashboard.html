@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天气数据看板 - 旅游计划生成助手</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/cities.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .dashboard-header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+            cursor: default;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .stat-card.expandable {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .stat-card.expandable::after {
+            content: '▼';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 10px;
+            color: #999;
+            transition: transform 0.2s;
+        }
+        
+        .stat-card.expandable.expanded::after {
+            transform: rotate(180deg);
+        }
+        
+        .stat-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        .stat-detail-panel {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .stat-card.expanded .stat-detail-panel {
+            display: block;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 12px;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #666;
+        }
+        
+        .detail-value {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .detail-value.positive {
+            color: #22c55e;
+        }
+        
+        .detail-value.negative {
+            color: #ef4444;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .city-weather-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .weather-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        
+        .weather-item:hover {
+            background: #e9ecef;
+            transform: translateX(3px);
+        }
+        
+        .weather-icon {
+            font-size: 24px;
+        }
+        
+        .weather-info {
+            flex: 1;
+        }
+        
+        .weather-city {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .weather-detail {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+        
+        .weather-temp {
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .alert-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .alert-item {
+            border-left: 3px solid;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .alert-item.danger {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .alert-item.warning {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .alert-item.info {
+            border-left-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        
+        .alert-type {
+            font-weight: bold;
+            font-size: 13px;
+        }
+        
+        .alert-city {
+            background: #e5e7eb;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+        
+        .alert-message {
+            font-size: 12px;
+            color: #374151;
+            line-height: 1.4;
+        }
+        
+        .alert-time {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 6px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 200px;
+        }
+        
+        .recommendation-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .recommendation-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .recommendation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        
+        .recommendation-city {
+            font-weight: bold;
+            font-size: 13px;
+            color: #333;
+        }
+        
+        .recommendation-badge {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+        
+        .recommendation-content {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
+        }
+        
+        .no-data-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+        
+        .refresh-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: #667eea;
+        }
+        
+        .loading::after {
+            content: '';
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .back-btn {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+        
+        .back-btn:hover {
+            transform: translateX(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <a href="/" class="back-btn">← 返回首页</a>
+        
+        <div class="dashboard-header">
+            <h1>📊 天气数据看板</h1>
+            <p>实时天气监测 · 异常预警 · 智能旅行建议</p>
+            <div style="margin-top:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                <a href="/" style="color:white;text-decoration:none;padding:6px 14px;background:rgba(255,255,255,0.2);border-radius:20px;font-size:13px;">🏠 首页</a>
+                <a href="/cities" style="color:white;text-decoration:none;padding:6px 14px;background:rgba(255,255,255,0.2);border-radius:20px;font-size:13px;">🏙️ 城市</a>
+                <a href="/weather-trend" style="color:white;text-decoration:none;padding:6px 14px;background:rgba(255,255,255,0.2);border-radius:20px;font-size:13px;">🌡️ 天气趋势</a>
+                <a href="/weekly-briefing" style="color:white;text-decoration:none;padding:6px 14px;background:rgba(255,255,255,0.3);border-radius:20px;font-size:13px;font-weight:700;">📋 每周天气简报</a>
+                <a href="/travel-review-cards" style="color:white;text-decoration:none;padding:6px 14px;background:rgba(255,255,255,0.2);border-radius:20px;font-size:13px;">🃏 回顾卡片</a>
+            </div>
+        </div>
+        
+        <!-- 统计卡片 -->
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🌡️</div>
+                <div class="stat-value" id="monitored-cities">-</div>
+                <div class="stat-label">监测城市数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-value" id="active-alerts">-</div>
+                <div class="stat-label">活跃告警数</div>
+            </div>
+            <div class="stat-card expandable" id="rules-stat-card" onclick="toggleRulesDetail()">
+                <div class="stat-icon">💡</div>
+                <div class="stat-value" id="active-rules">-</div>
+                <div class="stat-label">触发规则数</div>
+                <div class="stat-detail-panel" id="rules-detail-panel">
+                    <div class="detail-item">
+                        <span class="detail-label">高温预警规则</span>
+                        <span class="detail-value" id="rule-high-temp">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">暴雨预警规则</span>
+                        <span class="detail-value" id="rule-heavy-rain">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">空气质量规则</span>
+                        <span class="detail-value" id="rule-aqi">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">强风预警规则</span>
+                        <span class="detail-value" id="rule-wind">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">低温预警规则</span>
+                        <span class="detail-value" id="rule-low-temp">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">紫外线规则</span>
+                        <span class="detail-value" id="rule-uv">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">能见度规则</span>
+                        <span class="detail-value" id="rule-visibility">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">连续高温规则</span>
+                        <span class="detail-value" id="rule-continuous-heat">-</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card expandable" id="records-stat-card" onclick="toggleRecordsDetail()">
+                <div class="stat-icon">✅</div>
+                <div class="stat-value" id="data-records">-</div>
+                <div class="stat-label">数据记录数</div>
+                <div class="stat-detail-panel" id="records-detail-panel">
+                    <div class="detail-item">
+                        <span class="detail-label">今日记录</span>
+                        <span class="detail-value positive" id="records-today">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">本周记录</span>
+                        <span class="detail-value" id="records-week">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">本月记录</span>
+                        <span class="detail-value" id="records-month">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">历史总计</span>
+                        <span class="detail-value" id="records-total">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">活跃城市</span>
+                        <span class="detail-value" id="records-active-cities">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">平均每日记录</span>
+                        <span class="detail-value" id="records-daily-avg">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 图表区域 -->
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-title">📈 温度趋势</div>
+                <div class="chart-container">
+                    <canvas id="tempChart"></canvas>
+                </div>
+            </div>
+            <div class="dashboard-card">
+                <div class="card-title">📊 告警统计</div>
+                <div class="chart-container">
+                    <canvas id="alertChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 详细数据 -->
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-title">
+                    🌤️ 城市天气状况
+                    <button class="refresh-btn" onclick="loadDashboard()">刷新数据</button>
+                </div>
+                <div class="city-weather-list" id="weather-list">
+                    <div class="loading">加载中</div>
+                </div>
+            </div>
+            <div class="dashboard-card">
+                <div class="card-title">⚠️ 活跃告警</div>
+                <div class="alert-list" id="alert-list">
+                    <div class="loading">加载中</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 智能建议 -->
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-title">💡 智能旅行建议</div>
+                <div class="recommendation-list" id="recommendation-list">
+                    <div class="loading">加载中</div>
+                </div>
+            </div>
+            <div class="dashboard-card">
+                <div class="card-title">📋 规则触发统计</div>
+                <div class="chart-container">
+                    <canvas id="ruleChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let tempChart = null;
+        let alertChart = null;
+        let ruleChart = null;
+        
+        async function loadDashboard() {
+            try {
+                // 加载统计数据
+                const statsRes = await fetch('/api/dashboard/stats');
+                const stats = await statsRes.json();
+                updateStats(stats);
+                
+                // 加载温度趋势
+                const trendRes = await fetch('/api/dashboard/temperature-trend');
+                const trend = await trendRes.json();
+                updateTempChart(trend);
+                
+                // 加载告警统计
+                const alertRes = await fetch('/api/dashboard/alert-summary');
+                const alertSummary = await alertRes.json();
+                updateAlertChart(alertSummary);
+                
+                // 加载城市天气
+                const weatherRes = await fetch('/api/dashboard/weather-list');
+                const weatherList = await weatherRes.json();
+                updateWeatherList(weatherList);
+                
+                // 加载活跃告警
+                const alertsRes = await fetch('/api/dashboard/alerts');
+                const alerts = await alertsRes.json();
+                updateAlertList(alerts);
+                
+                // 加载智能建议
+                const recRes = await fetch('/api/dashboard/recommendations');
+                const recommendations = await recRes.json();
+                updateRecommendationList(recommendations);
+                
+                // 加载规则统计
+                const ruleRes = await fetch('/api/dashboard/rule-statistics');
+                const ruleStats = await ruleRes.json();
+                updateRuleChart(ruleStats);
+                
+            } catch (error) {
+                console.error('加载看板数据失败:', error);
+            }
+        }
+        
+        function updateStats(stats) {
+            document.getElementById('monitored-cities').textContent = stats.monitoredCities || 0;
+            document.getElementById('active-alerts').textContent = stats.activeAlerts || 0;
+            document.getElementById('active-rules').textContent = stats.activeRules || 0;
+            document.getElementById('data-records').textContent = stats.dataRecords || 0;
+            
+            // 更新规则详细数据
+            if (stats.ruleDetails) {
+                document.getElementById('rule-high-temp').textContent = stats.ruleDetails['高温预警规则'] || 0;
+                document.getElementById('rule-heavy-rain').textContent = stats.ruleDetails['暴雨预警规则'] || 0;
+                document.getElementById('rule-aqi').textContent = stats.ruleDetails['空气质量差预警'] || 0;
+                document.getElementById('rule-wind').textContent = stats.ruleDetails['强风预警规则'] || 0;
+                document.getElementById('rule-low-temp').textContent = stats.ruleDetails['极端低温预警'] || 0;
+                document.getElementById('rule-uv').textContent = stats.ruleDetails['紫外线强预警'] || 0;
+                document.getElementById('rule-visibility').textContent = stats.ruleDetails['低能见度预警'] || 0;
+                document.getElementById('rule-continuous-heat').textContent = stats.ruleDetails['连续高温预警'] || 0;
+            }
+            
+            // 更新记录详细数据
+            if (stats.recordDetails) {
+                document.getElementById('records-today').textContent = stats.recordDetails.today || 0;
+                document.getElementById('records-week').textContent = stats.recordDetails.week || 0;
+                document.getElementById('records-month').textContent = stats.recordDetails.month || 0;
+                document.getElementById('records-total').textContent = stats.recordDetails.total || 0;
+                document.getElementById('records-active-cities').textContent = stats.recordDetails.activeCities || 0;
+                document.getElementById('records-daily-avg').textContent = stats.recordDetails.dailyAvg || 0;
+            }
+        }
+        
+        function toggleRulesDetail() {
+            const card = document.getElementById('rules-stat-card');
+            const recordsCard = document.getElementById('records-stat-card');
+            
+            // 关闭另一个展开的卡片
+            if (recordsCard.classList.contains('expanded')) {
+                recordsCard.classList.remove('expanded');
+            }
+            
+            // 切换当前卡片状态
+            card.classList.toggle('expanded');
+        }
+        
+        function toggleRecordsDetail() {
+            const card = document.getElementById('records-stat-card');
+            const rulesCard = document.getElementById('rules-stat-card');
+            
+            // 关闭另一个展开的卡片
+            if (rulesCard.classList.contains('expanded')) {
+                rulesCard.classList.remove('expanded');
+            }
+            
+            // 切换当前卡片状态
+            card.classList.toggle('expanded');
+        }
+        
+        function updateTempChart(data) {
+            const ctx = document.getElementById('tempChart').getContext('2d');
+            
+            if (tempChart) {
+                tempChart.destroy();
+            }
+            
+            tempChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels || [],
+                    datasets: [{
+                        label: '平均温度 (°C)',
+                        data: data.temperatures || [],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateAlertChart(data) {
+            const ctx = document.getElementById('alertChart').getContext('2d');
+            
+            if (alertChart) {
+                alertChart.destroy();
+            }
+            
+            alertChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['高温预警', '暴雨预警', '空气质量', '强风预警', '其他'],
+                    datasets: [{
+                        data: [
+                            data.highTemp || 0,
+                            data.heavyRain || 0,
+                            data.poorAqi || 0,
+                            data.strongWind || 0,
+                            data.other || 0
+                        ],
+                        backgroundColor: [
+                            '#ef4444',
+                            '#3b82f6',
+                            '#f59e0b',
+                            '#8b5cf6',
+                            '#6b7280'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateWeatherList(data) {
+            const container = document.getElementById('weather-list');
+            
+            if (!data.cities || data.cities.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <div class="no-data-icon">📍</div>
+                        <p>暂无天气数据</p>
+                        <p style="font-size:12px;">请先在对话框中查询城市天气</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = data.cities.map(city => `
+                <div class="weather-item">
+                    <div class="weather-icon">${getWeatherEmoji(city.condition)}</div>
+                    <div class="weather-info">
+                        <div class="weather-city">${city.city}</div>
+                        <div class="weather-detail">${city.condition} · 湿度${city.humidity}% · 风速${city.wind}km/h</div>
+                    </div>
+                    <div class="weather-temp">${city.temperature}°C</div>
+                </div>
+            `).join('');
+        }
+        
+        function updateAlertList(data) {
+            const container = document.getElementById('alert-list');
+            
+            if (!data.alerts || data.alerts.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <div class="no-data-icon">✅</div>
+                        <p>当前无活跃告警</p>
+                        <p style="font-size:12px;">天气状况良好！</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = data.alerts.map(alert => `
+                <div class="alert-item ${alert.severity}">
+                    <div class="alert-header">
+                        <span class="alert-type">${alert.alert_type}</span>
+                        <span class="alert-city">${alert.city}</span>
+                    </div>
+                    <div class="alert-message">${alert.message}</div>
+                    <div class="alert-time">${formatTime(alert.timestamp)}</div>
+                </div>
+            `).join('');
+        }
+        
+        function updateRecommendationList(data) {
+            const container = document.getElementById('recommendation-list');
+            
+            if (!data.recommendations || data.recommendations.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <div class="no-data-icon">💡</div>
+                        <p>暂无建议</p>
+                        <p style="font-size:12px;">天气条件良好，无需特别建议</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = data.recommendations.map(rec => `
+                <div class="recommendation-item">
+                    <div class="recommendation-header">
+                        <span class="recommendation-city">${rec.city}</span>
+                        <span class="recommendation-badge">${rec.rule_name}</span>
+                    </div>
+                    <div class="recommendation-content">${rec.recommendation}</div>
+                </div>
+            `).join('');
+        }
+        
+        function updateRuleChart(data) {
+            const ctx = document.getElementById('ruleChart').getContext('2d');
+            
+            if (ruleChart) {
+                ruleChart.destroy();
+            }
+            
+            const labels = Object.keys(data);
+            const values = Object.values(data);
+            
+            ruleChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '触发次数',
+                        data: values,
+                        backgroundColor: '#667eea'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        function getWeatherEmoji(condition) {
+            if (!condition) return '🌤️';
+            condition = condition.toLowerCase();
+            if (condition.includes('晴')) return '☀️';
+            if (condition.includes('云') || condition.includes('阴')) return '☁️';
+            if (condition.includes('雨')) return '🌧️';
+            if (condition.includes('雪')) return '❄️';
+            if (condition.includes('雾') || condition.includes('霾')) return '🌫️';
+            if (condition.includes('雷')) return '⛈️';
+            return '🌤️';
+        }
+        
+        function formatTime(isoString) {
+            if (!isoString) return '';
+            const date = new Date(isoString);
+            return date.toLocaleString('zh-CN');
+        }
+        
+        // 页面加载时获取数据
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+        
+        // 每60秒自动刷新
+        setInterval(loadDashboard, 60000);
+    </script>
+</body>
+</html>

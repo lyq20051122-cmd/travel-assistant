@@ -1,0 +1,198 @@
+{
+  "trip_test_user_hw9_001_20260609174439": {
+    "trip_id": "trip_test_user_hw9_001_20260609174439",
+    "user_id": "test_user_hw9_001",
+    "destination": "西安",
+    "start_date": "2026-06-09",
+    "end_date": "2026-06-11",
+    "days_plan": [
+      {
+        "day": 1,
+        "date": "2026-06-09",
+        "morning": {
+          "activity": "景点游览",
+          "place": "兵马俑",
+          "duration": "3小时",
+          "budget": "¥120"
+        },
+        "afternoon": {
+          "activity": "景点游览",
+          "place": "大雁塔",
+          "duration": "2小时",
+          "budget": "¥50"
+        },
+        "evening": {
+          "activity": "美食体验",
+          "place": "回民街",
+          "duration": "2小时",
+          "budget": "¥80"
+        }
+      },
+      {
+        "day": 2,
+        "date": "2026-06-10",
+        "morning": {
+          "activity": "户外摄影",
+          "place": "城墙",
+          "duration": "2小时",
+          "budget": "¥54"
+        },
+        "afternoon": {
+          "activity": "博物馆",
+          "place": "陕西历史博物馆",
+          "duration": "3小时",
+          "budget": "¥0"
+        },
+        "evening": {
+          "activity": "夜景观光",
+          "place": "大唐不夜城",
+          "duration": "2小时",
+          "budget": "¥100"
+        }
+      }
+    ],
+    "created_at": "2026-06-09T17:44:39.594918",
+    "push_count": {},
+    "last_push_time": null,
+    "guardian_phase": "post_trip",
+    "intervention_log": [],
+    "status": "completed"
+  },
+  "trip_test_user_hw9_001_api_20260609174447": {
+    "trip_id": "trip_test_user_hw9_001_api_20260609174447",
+    "user_id": "test_user_hw9_001_api",
+    "destination": "杭州",
+    "start_date": "2026-06-09",
+    "end_date": "2026-06-12",
+    "days_plan": [
+      {
+        "day": 1,
+        "date": "2026-06-09",
+        "weather": null,
+        "morning": {
+          "activity": "景点游览",
+          "place": "西湖",
+          "duration": "3-4小时",
+          "budget": "¥100-200"
+        },
+        "afternoon": {
+          "activity": "景点游览",
+          "place": "灵隐寺",
+          "duration": "3-4小时",
+          "budget": "¥100-200"
+        },
+        "evening": {
+          "activity": "美食体验",
+          "place": "龙井虾仁",
+          "duration": "2小时",
+          "budget": "¥60-150"
+        }
+      },
+      {
+        "day": 2,
+        "date": "2026-06-10",
+        "weather": null,
+        "morning": {
+          "activity": "景点游览",
+          "place": "千岛湖",
+          "duration": "3-4小时",
+          "budget": "¥100-200"
+        },
+        "afternoon": {
+          "activity": "景点游览",
+          "place": "西溪湿地",
+          "duration": "3-4小时",
+          "budget": "¥100-200"
+        },
+        "evening": {
+          "activity": "美食体验",
+          "place": "叫化鸡",
+          "duration": "2小时",
+          "budget": "¥60-150"
+        }
+      },
+      {
+        "day": 3,
+        "date": "2026-06-11",
+        "weather": null,
+        "morning": {
+          "activity": "景点游览",
+          "place": "雷峰塔",
+          "duration": "3-4小时",
+          "budget": "¥100-200"
+        },
+        "afternoon": {
+          "activity": "景点游览",
+          "place": "宋城",
+          "duration": "3-4小时",
+          "budget": "¥100-200"
+        },
+        "evening": {
+          "activity": "美食体验",
+          "place": "片儿川",
+          "duration": "2小时",
+          "budget": "¥60-150"
+        }
+      }
+    ],
+    "created_at": "2026-06-09T17:44:47.062400",
+    "push_count": {},
+    "last_push_time": null,
+    "guardian_phase": "post_trip",
+    "intervention_log": [],
+    "status": "completed"
+  },
+  "trip_test_user_001_20260609174450": {
+    "trip_id": "trip_test_user_001_20260609174450",
+    "user_id": "test_user_001",
+    "destination": "西安",
+    "start_date": "2026-06-09",
+    "end_date": "2026-06-11",
+    "days_plan": [
+      {
+        "day": 1,
+        "date": "2026-06-09",
+        "morning": {
+          "activity": "景点游览",
+          "place": "兵马俑",
+          "duration": "3小时"
+        },
+        "afternoon": {
+          "activity": "景点游览",
+          "place": "大雁塔",
+          "duration": "2小时"
+        },
+        "evening": {
+          "activity": "美食体验",
+          "place": "回民街",
+          "duration": "2小时"
+        }
+      },
+      {
+        "day": 2,
+        "date": "2026-06-10",
+        "morning": {
+          "activity": "户外摄影",
+          "place": "城墙",
+          "duration": "2小时"
+        },
+        "afternoon": {
+          "activity": "博物馆",
+          "place": "陕西历史博物馆",
+          "duration": "3小时"
+        },
+        "evening": {
+          "activity": "夜景观光",
+          "place": "大唐不夜城",
+          "duration": "2小时"
+        }
+      }
+    ],
+    "created_at": "2026-06-09T17:44:50.636469",
+    "push_count": {},
+    "last_push_time": null,
+    "guardian_phase": "post_trip",
+    "intervention_log": [],
+    "status": "completed"
+  }
+}

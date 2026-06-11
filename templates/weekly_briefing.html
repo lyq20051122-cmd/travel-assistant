@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每周天气简报 - 旅游计划生成助手</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/cities.css">
+    <style>
+        :root {
+            --score-excellent: #22c55e;
+            --score-good: #eab308;
+            --score-fair: #f97316;
+            --score-poor: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', '微软雅黑', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .briefing-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 20px 40px 20px;
+        }
+
+        /* 顶部标题栏 */
+        .briefing-header {
+            background: white;
+            border-radius: 16px;
+            padding: 24px 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .briefing-header-left h1 {
+            font-size: 28px;
+            color: #1a1a2e;
+            margin: 0 0 6px 0;
+        }
+
+        .briefing-header-left .subtitle {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .briefing-header-right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            color: #555;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .export-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            background: #f8f9ff;
+            transform: translateY(-1px);
+        }
+
+        .export-btn.md { border-left: 3px solid #3b82f6; }
+        .export-btn.txt { border-left: 3px solid #22c55e; }
+        .export-btn.json { border-left: 3px solid #f59e0b; }
+
+        .refresh-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* 摘要卡片 */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .summary-card .icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .summary-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 4px;
+        }
+
+        .summary-card .label {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .summary-card.hottest { border-top: 4px solid #ef4444; }
+        .summary-card.coolest { border-top: 4px solid #3b82f6; }
+        .summary-card.avg { border-top: 4px solid #8b5cf6; }
+        .summary-card.rain { border-top: 4px solid #06b6d4; }
+        .summary-card.overall { border-top: 4px solid #22c55e; }
+
+        /* 最佳旅行城市 TOP 横幅 */
+        .top-cities-banner {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 2px solid #86efac;
+            border-radius: 14px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .top-cities-banner .badge {
+            background: #22c55e;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .top-cities-banner .city-tag {
+            background: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .top-cities-banner .city-tag .score {
+            color: #22c55e;
+            font-weight: 700;
+        }
+
+        /* 城市天气卡片网格 */
+        .cities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .city-card {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .city-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .city-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .city-card .city-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .city-card .city-region {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .city-card .score-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .score-excellent { background: var(--score-excellent); }
+        .score-good { background: var(--score-good); color: #333 !important; }
+        .score-fair { background: var(--score-fair); }
+        .score-poor { background: var(--score-poor); }
+
+        .city-card .weather-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f8f9ff;
+            border-radius: 10px;
+        }
+
+        .city-card .weather-icon {
+            font-size: 40px;
+        }
+
+        .city-card .temp {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a1a2e;
+            line-height: 1;
+        }
+
+        .city-card .temp .unit {
+            font-size: 18px;
+            font-weight: 400;
+            color: #888;
+        }
+
+        .city-card .condition-text {
+            font-size: 15px;
+            color: #555;
+        }
+
+        .city-card .feels-like {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .city-card .weather-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .city-card .detail-item {
+            text-align: center;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .city-card .detail-item .d-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .city-card .detail-item .d-label {
+            font-size: 11px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .city-card .advice-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .city-card .advice-list li {
+            padding: 6px 0;
+            font-size: 13px;
+            color: #555;
+            border-bottom: 1px solid #f0f0f0;
+            line-height: 1.5;
+        }
+
+        .city-card .advice-list li:last-child {
+            border-bottom: none;
+        }
+
+        .city-card .fallback-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        /* 警告横幅 */
+        .rain-warning {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border: 2px solid #93c5fd;
+            border-radius: 14px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .rain-warning .warn-icon {
+            font-size: 28px;
+        }
+
+        .rain-warning .warn-text {
+            font-size: 14px;
+            color: #1e40af;
+            line-height: 1.6;
+        }
+
+        /* 加载状态 */
+        .loading-overlay {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            color: white;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1024px) {
+            .summary-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .cities-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .cities-grid {
+                grid-template-columns: 1fr;
+            }
+            .briefing-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">✈ 旅游计划生成助手</div>
+    <a href="/" class="nav-link">智能对话</a>
+    <a href="/cities" class="nav-link">城市介绍</a>
+    <a href="/checklist" class="nav-link">旅游物品清单</a>
+    <a href="/city-stats" class="nav-link stats-link">📊 城市统计</a>
+    <a href="/dashboard" class="nav-link dashboard-link">📈 数据看板</a>
+    <a href="/weather-trend" class="nav-link weather-trend-link">🌡️ 天气趋势</a>
+    <a href="/weekly-briefing" class="nav-link active" style="background: linear-gradient(135deg, #667eea20, #764ba220); color: #667eea; font-weight: 700;">📋 每周天气简报</a>
+    <a href="/travel-review-cards" class="nav-link">🃏 旅行回顾卡片</a>
+</div>
+
+<div class="main-container">
+    <div class="briefing-container">
+        <!-- 标题栏 -->
+        <div class="briefing-header">
+            <div class="briefing-header-left">
+                <h1>📋 每周天气旅行简报</h1>
+                <div class="subtitle" id="period-info">加载中...</div>
+            </div>
+            <div class="briefing-header-right">
+                <button class="refresh-btn" onclick="loadBriefing()" id="refresh-btn">
+                    🔄 刷新数据
+                </button>
+                <button class="export-btn md" onclick="exportBriefing('md')" title="下载 Markdown 格式">
+                    📥 Markdown
+                </button>
+                <button class="export-btn txt" onclick="exportBriefing('txt')" title="下载纯文本格式">
+                    📄 TXT
+                </button>
+                <button class="export-btn json" onclick="exportBriefing('json')" title="下载 JSON 数据格式">
+                    📊 JSON
+                </button>
+            </div>
+        </div>
+
+        <!-- 加载状态 -->
+        <div id="loading-area" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">正在获取热门城市天气数据...</div>
+        </div>
+
+        <!-- 内容区 -->
+        <div id="content-area" style="display:none;">
+            <!-- 摘要卡片 -->
+            <div class="summary-grid" id="summary-grid"></div>
+
+            <!-- 最佳旅行城市 -->
+            <div class="top-cities-banner" id="top-cities-banner"></div>
+
+            <!-- 降雨提醒 -->
+            <div class="rain-warning" id="rain-warning" style="display:none;"></div>
+
+            <!-- 城市天气卡片 -->
+            <div class="cities-grid" id="cities-grid"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let briefingData = null;
+
+    function getScoreClass(score) {
+        if (score >= 80) return 'score-excellent';
+        if (score >= 60) return 'score-good';
+        if (score >= 40) return 'score-fair';
+        return 'score-poor';
+    }
+
+    function getScoreLabel(score) {
+        if (score >= 80) return '优秀';
+        if (score >= 60) return '良好';
+        if (score >= 40) return '一般';
+        return '较差';
+    }
+
+    function getWeatherEmoji(condition) {
+        const c = (condition || '').toLowerCase();
+        if (c.includes('晴') || c.includes('sunny') || c.includes('clear')) return '☀️';
+        if (c.includes('多云') || c.includes('cloudy') || c.includes('partly')) return '⛅';
+        if (c.includes('阴') || c.includes('overcast')) return '☁️';
+        if (c.includes('雨') || c.includes('rain') || c.includes('drizzle') || c.includes('shower')) return '🌧️';
+        if (c.includes('雪') || c.includes('snow')) return '🌨️';
+        if (c.includes('雷') || c.includes('thunder') || c.includes('storm')) return '⛈️';
+        if (c.includes('雾') || c.includes('fog') || c.includes('mist') || c.includes('霾') || c.includes('haze')) return '🌫️';
+        return '🌤️';
+    }
+
+    async function loadBriefing() {
+        const loadingArea = document.getElementById('loading-area');
+        const contentArea = document.getElementById('content-area');
+        const refreshBtn = document.getElementById('refresh-btn');
+
+        loadingArea.style.display = 'flex';
+        contentArea.style.display = 'none';
+        refreshBtn.disabled = true;
+
+        try {
+            const response = await fetch('/api/weekly-briefing/data');
+            briefingData = await response.json();
+
+            if (!briefingData.success) {
+                throw new Error(briefingData.message || '获取数据失败');
+            }
+
+            renderBriefing(briefingData);
+        } catch (error) {
+            console.error('加载简报失败:', error);
+            loadingArea.innerHTML = `
+                <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+                <div class="loading-text">加载失败：${error.message}</div>
+                <button class="refresh-btn" onclick="loadBriefing()" style="margin-top:16px;">🔄 重试</button>
+            `;
+        } finally {
+            refreshBtn.disabled = false;
+        }
+    }
+
+    function renderBriefing(data) {
+        const loadingArea = document.getElementById('loading-area');
+        const contentArea = document.getElementById('content-area');
+
+        loadingArea.style.display = 'none';
+        contentArea.style.display = 'block';
+
+        // 更新周期信息
+        document.getElementById('period-info').textContent =
+            `简报周期：${data.period_start} ~ ${data.period_end}  |  生成时间：${data.generated_at}`;
+
+        // 渲染摘要
+        renderSummary(data.summary);
+
+        // 渲染最佳城市横幅
+        renderTopCities(data.summary.best_travel_cities);
+
+        // 渲染降雨警告
+        renderRainWarning(data.summary.rainy_cities, data.cities);
+
+        // 渲染城市卡片
+        renderCityCards(data.cities);
+    }
+
+    function renderSummary(summary) {
+        const grid = document.getElementById('summary-grid');
+        grid.innerHTML = `
+            <div class="summary-card hottest">
+                <div class="icon">🔥</div>
+                <div class="value">${summary.hottest_city.temp}°C</div>
+                <div class="label">最热城市 · ${summary.hottest_city.name}</div>
+            </div>
+            <div class="summary-card coolest">
+                <div class="icon">❄️</div>
+                <div class="value">${summary.coolest_city.temp}°C</div>
+                <div class="label">最凉爽 · ${summary.coolest_city.name}</div>
+            </div>
+            <div class="summary-card avg">
+                <div class="icon">🌡️</div>
+                <div class="value">${summary.avg_temperature}°C</div>
+                <div class="label">平均气温 · ${summary.total_cities} 座城市</div>
+            </div>
+            <div class="summary-card rain">
+                <div class="icon">🌧️</div>
+                <div class="value">${summary.rainy_count}</div>
+                <div class="label">降雨城市</div>
+            </div>
+            <div class="summary-card overall">
+                <div class="icon">⭐</div>
+                <div class="value">${summary.overall_score}</div>
+                <div class="label">综合旅行评分 /100</div>
+            </div>
+        `;
+    }
+
+    function renderTopCities(bestCities) {
+        const banner = document.getElementById('top-cities-banner');
+        if (!bestCities || bestCities.length === 0) {
+            banner.style.display = 'none';
+            return;
+        }
+        banner.style.display = 'flex';
+
+        let html = '<span class="badge">⭐ 最佳旅行城市 TOP 5</span>';
+        bestCities.forEach((city, idx) => {
+            html += `<span class="city-tag">
+                ${idx + 1}. ${city.name} — ${city.condition} ${city.temp}°C
+                <span class="score">${city.score}分</span>
+            </span>`;
+        });
+        banner.innerHTML = html;
+    }
+
+    function renderRainWarning(rainyCities, allCities) {
+        const warning = document.getElementById('rain-warning');
+        if (!rainyCities || rainyCities.length === 0) {
+            warning.style.display = 'none';
+            return;
+        }
+        warning.style.display = 'flex';
+
+        let cityDetails = rainyCities.map(name => {
+            const city = allCities.find(c => c.name === name);
+            return city ? `${name}（${city.condition}，${city.temperature}°C）` : name;
+        }).join('、');
+
+        warning.innerHTML = `
+            <div class="warn-icon">🌧️</div>
+            <div class="warn-text">
+                <strong>降雨提醒：</strong>以下 ${rainyCities.length} 座城市有降雨天气，出行请携带雨具，合理安排室内外行程。<br>
+                ${cityDetails}
+            </div>
+        `;
+    }
+
+    function renderCityCards(cities) {
+        const grid = document.getElementById('cities-grid');
+        let html = '';
+
+        cities.forEach(city => {
+            const scoreClass = getScoreClass(city.travel_score);
+            const scoreLabel = getScoreLabel(city.travel_score);
+            const emoji = getWeatherEmoji(city.condition);
+            const fallbackTag = city._fallback
+                ? '<span class="fallback-tag">模拟数据</span>'
+                : '';
+
+            html += `
+            <div class="city-card">
+                ${fallbackTag}
+                <div class="card-header">
+                    <div>
+                        <div class="city-name">${city.name}</div>
+                        <div class="city-region">${city.region}地区</div>
+                    </div>
+                    <span class="score-badge ${scoreClass}">${city.travel_score}分 · ${scoreLabel}</span>
+                </div>
+
+                <div class="weather-main">
+                    <span class="weather-icon">${emoji}</span>
+                    <div>
+                        <div class="temp">${city.temperature}<span class="unit">°C</span></div>
+                        <div class="condition-text">${city.condition}</div>
+                        <div class="feels-like">体感 ${city.feels_like}°C</div>
+                    </div>
+                </div>
+
+                <div class="weather-details">
+                    <div class="detail-item">
+                        <div class="d-value">${city.humidity}%</div>
+                        <div class="d-label">💧 湿度</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="d-value">${city.wind_speed} km/h</div>
+                        <div class="d-label">🌬️ ${city.wind_dir}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="d-value">UV ${city.uv}</div>
+                        <div class="d-label">☀️ 紫外线</div>
+                    </div>
+                </div>
+
+                <ul class="advice-list">
+                    ${city.advice.map(a => `<li>${a}</li>`).join('')}
+                </ul>
+            </div>`;
+        });
+
+        grid.innerHTML = html;
+    }
+
+    function exportBriefing(format) {
+        if (!briefingData) {
+            alert('简报数据尚未加载，请稍后再试');
+            return;
+        }
+
+        // 直接触发下载
+        const url = `/api/weekly-briefing/export?format=${format}`;
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = '';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // 页面加载时自动获取数据
+    document.addEventListener('DOMContentLoaded', function() {
+        loadBriefing();
+    });
+</script>
+
+</body>
+</html>
